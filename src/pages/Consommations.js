@@ -26,7 +26,7 @@ const Consommations = () => {
             </div>
             <div className="form-group">
               <label className="form-label">Montant *</label>
-              <input type="number" className="form-input" placeholder="$" />
+              <input type="number" className="form-input" placeholder="MAD" />
             </div>
             <div className="form-group">
               <label className="form-label">Kilométrage *</label>

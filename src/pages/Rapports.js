@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FileText } from 'lucide-react';
-import { REPORT_TABS, REPORT_TRANSLATIONS } from '../utils/constants';
+import { REPORT_TABS } from '../utils/constants';
 
 const Rapports = () => {
   const [activeReportTab, setActiveReportTab] = useState('parc-auto');
@@ -65,12 +65,9 @@ const Rapports = () => {
             </div>
             
             <div style={{ marginBottom: '2rem' }}>
-              <h2 style={{ marginBottom: '1rem' }}>
+              <h2 style={{ marginBottom: '2rem' }}>
                 {REPORT_TABS.find(tab => tab.id === activeReportTab)?.label || 'Situation du Parc Auto'}
               </h2>
-              <p style={{ color: '#6b7280', marginBottom: '2rem' }}>
-                {REPORT_TRANSLATIONS[activeReportTab]}
-              </p>
             </div>
             
             <div className="table-container">
