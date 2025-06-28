@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from './context/ThemeContext';
 import Header from './components/Header';
 import Navigation from './components/Navigation';
 import Dashboard from './pages/Dashboard';
@@ -12,20 +13,22 @@ import './App.css';
 
 function App() {
   return (
-    <Router>
-      <div className="app">
-        <Header />
-        <Navigation />
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/parc-auto" element={<ParcAuto />} />
-          <Route path="/consommations" element={<Consommations />} />
-          <Route path="/interventions" element={<Interventions />} />
-          <Route path="/ordres-missions" element={<OrdresMissions />} />
-          <Route path="/rapports" element={<Rapports />} />
-        </Routes>
-      </div>
-    </Router>
+    <ThemeProvider>
+      <Router>
+        <div className="app">
+          <Header />
+          <Navigation />
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/parc-auto" element={<ParcAuto />} />
+            <Route path="/consommations" element={<Consommations />} />
+            <Route path="/interventions" element={<Interventions />} />
+            <Route path="/ordres-missions" element={<OrdresMissions />} />
+            <Route path="/rapports" element={<Rapports />} />
+          </Routes>
+        </div>
+      </Router>
+    </ThemeProvider>
   );
 }
 

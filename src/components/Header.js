@@ -1,7 +1,10 @@
 import React from 'react';
-import { Bell, Settings, Moon, Rss, User } from 'lucide-react';
+import { Bell, Settings, Moon, Sun, Rss, User } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 
 const Header = () => {
+  const { theme, toggleTheme } = useTheme();
+  
   return (
     <header className="header">
       <div className="logo">
@@ -14,8 +17,8 @@ const Header = () => {
         <button className="header-icon">
           <Rss size={20} />
         </button>
-        <button className="header-icon">
-          <Moon size={20} />
+        <button className="header-icon" onClick={toggleTheme} aria-label="Toggle dark mode">
+          {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
         </button>
         <button className="header-icon">
           <Settings size={20} />
