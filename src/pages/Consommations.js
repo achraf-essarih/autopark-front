@@ -12,7 +12,7 @@ const Consommations = () => {
 
       {showForm && (
         <div className="form-container">
-          <h3 style={{ marginBottom: '1.5rem', color: '#1f2937' }}>Ajouter une nouvelle consommation</h3>
+          <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)' }}>Ajouter une nouvelle consommation</h3>
           <div className="form-grid">
             <div className="form-group">
               <label className="form-label">Véhicule *</label>
@@ -44,7 +44,7 @@ const Consommations = () => {
         </div>
       )}
 
-      <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1rem', marginBottom: '2rem' }}>
+      <div style={{ background: 'var(--card-bg)', borderRadius: '0.75rem', padding: '1rem', marginBottom: '2rem', border: '1px solid var(--border-color)' }}>
         <button 
           className="btn btn-primary" 
           onClick={() => setShowForm(!showForm)}
@@ -56,7 +56,7 @@ const Consommations = () => {
       </div>
 
       <div className="table-container">
-        <div style={{ padding: '1rem', borderBottom: '1px solid #e5e7eb', background: '#f9fafb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)', background: 'var(--table-header-bg)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3>Gestion des consommations (0)</h3>
           <input type="text" placeholder="Search" className="form-input" style={{ width: '200px' }} />
         </div>

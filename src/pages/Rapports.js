@@ -9,7 +9,7 @@ const Rapports = () => {
     <div className="main-content">
       <div className="page-header">
         <h1 className="page-title">Rapports</h1>
-        <button className="btn btn-success">
+        <button className="btn btn-success" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <FileText size={18} />
           Imprimer
         </button>
@@ -17,7 +17,7 @@ const Rapports = () => {
       
       <div style={{ display: 'flex', gap: '2rem' }}>
         <div style={{ width: '300px' }}>
-          <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', border: '1px solid #e5e7eb' }}>
+          <div style={{ background: 'var(--card-bg)', borderRadius: '0.75rem', padding: '1.5rem', border: '1px solid var(--border-color)' }}>
             {REPORT_TABS.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeReportTab === tab.id;
@@ -26,17 +26,16 @@ const Rapports = () => {
                   key={tab.id}
                   onClick={() => setActiveReportTab(tab.id)}
                   style={{ 
-                    marginBottom: '1rem', 
-                    padding: '0.75rem', 
-                    color: isActive ? '#3b82f6' : '#6b7280', 
+                    marginBottom: '0.5rem', 
+                    padding: '0.75rem 1rem', 
+                    color: isActive ? 'var(--sidebar-active-text)' : 'var(--text-secondary)', 
                     cursor: 'pointer',
-                    borderRadius: '0.5rem',
-                    background: isActive ? '#eff6ff' : 'transparent',
-                    borderLeft: isActive ? '3px solid #3b82f6' : '3px solid transparent',
+                    borderRadius: '0.25rem',
+                    background: isActive ? 'var(--sidebar-active-bg)' : 'transparent',
                     transition: 'all 0.2s'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: isActive ? '500' : 'normal' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: isActive ? '500' : 'normal' }}>
                     <Icon size={18} />
                     {tab.label}
                   </div>
@@ -47,7 +46,7 @@ const Rapports = () => {
         </div>
         
         <div style={{ flex: 1 }}>
-          <div style={{ background: 'white', borderRadius: '0.75rem', padding: '2rem', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+          <div style={{ background: 'var(--card-bg)', borderRadius: '0.75rem', padding: '2rem', border: '1px solid var(--border-color)', textAlign: 'center' }}>
             <div style={{ marginBottom: '2rem' }}>
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '2rem', marginBottom: '2rem' }}>
                 <div style={{ textAlign: 'center' }}>
@@ -68,7 +67,7 @@ const Rapports = () => {
               <h2 style={{ marginBottom: '1rem' }}>
                 {REPORT_TABS.find(tab => tab.id === activeReportTab)?.label || 'Situation du Parc Auto'}
               </h2>
-              <p style={{ color: '#6b7280', marginBottom: '2rem' }}>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>
                 {REPORT_TRANSLATIONS[activeReportTab]}
               </p>
             </div>
@@ -114,7 +113,7 @@ const Rapports = () => {
                     <td colSpan={
                       activeReportTab === 'parc-auto' ? 6 :
                       activeReportTab === 'consommation' ? 5 : 5
-                    } style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
+                    } style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>
                       Aucune donnée disponible pour {REPORT_TABS.find(tab => tab.id === activeReportTab)?.label}
                     </td>
                   </tr>
@@ -122,7 +121,7 @@ const Rapports = () => {
               </table>
             </div>
             
-            <div style={{ marginTop: '2rem', textAlign: 'right', color: '#6b7280' }}>
+            <div style={{ marginTop: '2rem', textAlign: 'right', color: 'var(--text-secondary)' }}>
               <p>Date d'édition</p>
               <p>2025-06-26</p>
             </div>

@@ -7,21 +7,19 @@ const Navigation = () => {
 
   return (
     <nav className="nav-container">
-      <div className="nav-tabs">
-        {NAV_ITEMS.map((item) => {
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`nav-tab ${location.pathname === item.path ? 'active' : ''}`}
-            >
-              <Icon size={18} />
-              {item.label}
-            </Link>
-          );
-        })}
-      </div>
+      {NAV_ITEMS.map((item) => {
+        const Icon = item.icon;
+        return (
+          <Link
+            key={item.path}
+            to={item.path}
+            className={`nav-tab ${location.pathname === item.path ? 'active' : ''}`}
+          >
+            <Icon size={18} />
+            {item.label}
+          </Link>
+        );
+      })}
     </nav>
   );
 };

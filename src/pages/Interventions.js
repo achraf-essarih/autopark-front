@@ -28,7 +28,7 @@ const Interventions = () => {
 
       <div className="intervention-content">
         <div style={{ marginBottom: '2rem' }}>
-          <h3 style={{ marginBottom: '1.5rem', color: '#1f2937' }}>
+          <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)' }}>
             Control de véhicule | {INTERVENTION_TABS.find(t => t.id === activeTab)?.label} (0)
           </h3>
           <div className="form-grid">
@@ -63,7 +63,7 @@ const Interventions = () => {
         </div>
 
         <div className="table-container">
-          <div style={{ padding: '1rem', borderBottom: '1px solid #e5e7eb', background: '#f9fafb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)', background: 'var(--table-header-bg)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <input type="text" placeholder="Search" className="form-input" style={{ width: '200px' }} />
           </div>
           <div className="empty-state">
