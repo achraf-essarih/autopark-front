@@ -1,0 +1,10 @@
+# This is a placeholder file
+# Please replace this file with your actual logo image
+# The image should be:
+# - PNG or JPG format
+# - Recommended size: 80x80 pixels or larger (it will be resized)
+# - Name it "logo-placeholder.png" or update the src path in App.js
+
+# To add your logo:
+# 1. Save your logo image as "logo-placeholder.png" in the public folder
+# 2. Or rename your logo file and update the src="/your-logo-name.png" in App.js 
