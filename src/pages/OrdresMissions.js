@@ -72,11 +72,11 @@ const OrdresMissions = () => {
           <div className="form-grid" style={{ marginTop: '1rem' }}>
             <div className="form-group">
               <label className="form-label">Date de départ :</label>
-              <input type="date" className="form-input" defaultValue="2025-06-26" />
+              <input type="date" className="form-input" defaultValue="0000-00-00" />
             </div>
             <div className="form-group">
               <label className="form-label">Date de retour :</label>
-              <input type="date" className="form-input" defaultValue="2025-06-26" />
+              <input type="date" className="form-input" defaultValue="0000-00-00" />
             </div>
           </div>
 

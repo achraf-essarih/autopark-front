@@ -22,7 +22,7 @@ const Consommations = () => {
             </div>
             <div className="form-group">
               <label className="form-label">Date *</label>
-              <input type="date" className="form-input" defaultValue="2025-06-26" />
+              <input type="date" className="form-input" defaultValue="0000-00-00" />
             </div>
             <div className="form-group">
               <label className="form-label">Montant *</label>
