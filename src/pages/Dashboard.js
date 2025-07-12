@@ -1,9 +1,90 @@
-import React from 'react';
-import { Car, ClipboardList, Fuel, BarChart3, MoreHorizontal } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Car, ClipboardList, Fuel, BarChart3, MoreHorizontal, AlertCircle } from 'lucide-react';
+import vehicleService from '../services/vehicleService';
+import consumptionService from '../services/consumptionService';
+import missionService from '../services/missionService';
 
 const Dashboard = () => {
+  const [stats, setStats] = useState({
+    vehicles: 0,
+    missions: 0,
+    totalConsumption: 0,
+    loading: true,
+    error: null
+  });
+
+  const [chartData, setChartData] = useState([]);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      setStats(prev => ({ ...prev, loading: true, error: null }));
+
+      // Charger les données en parallèle
+      const [vehiclesResult, missionsResult, consumptionResult] = await Promise.all([
+        vehicleService.getVehicleStats(),
+        missionService.getMissionStats(),
+        consumptionService.getConsumptionStats()
+      ]);
+
+      // Mise à jour des statistiques
+      setStats({
+        vehicles: vehiclesResult.success ? vehiclesResult.stats.total : 0,
+        missions: missionsResult.success ? missionsResult.stats.totalMissions : 0,
+        totalConsumption: consumptionResult.success ? consumptionResult.stats.totalCost : 0,
+        loading: false,
+        error: null
+      });
+
+      // Charger les données du graphique (consommations mensuelles)
+      if (consumptionResult.success && consumptionResult.stats.monthlyData) {
+        setChartData(consumptionResult.stats.monthlyData);
+      }
+
+    } catch (error) {
+      console.error('Erreur lors du chargement des données:', error);
+      setStats(prev => ({
+        ...prev,
+        loading: false,
+        error: 'Erreur lors du chargement des données'
+      }));
+    }
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('fr-MA', {
+      style: 'currency',
+      currency: 'MAD',
+      minimumFractionDigits: 0
+    }).format(amount);
+  };
+
+  if (stats.loading) {
+    return (
+      <div className="main-content">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Chargement des données...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="main-content">
+      {stats.error && (
+        <div className="error-banner">
+          <AlertCircle size={20} />
+          <span>{stats.error}</span>
+          <button onClick={loadDashboardData} className="retry-button">
+            Réessayer
+          </button>
+        </div>
+      )}
+
       <div className="dashboard-stats">
         <div className="stat-card">
           <div className="stat-header">
@@ -11,7 +92,7 @@ const Dashboard = () => {
               <Car size={24} />
             </div>
           </div>
-          <div className="stat-value">0</div>
+          <div className="stat-value">{stats.vehicles}</div>
           <div className="stat-label">Véhicules</div>
         </div>
         
@@ -21,7 +102,7 @@ const Dashboard = () => {
               <ClipboardList size={24} />
             </div>
           </div>
-          <div className="stat-value">0</div>
+          <div className="stat-value">{stats.missions}</div>
           <div className="stat-label">Ordres des missions</div>
         </div>
         
@@ -31,23 +112,47 @@ const Dashboard = () => {
               <Fuel size={24} />
             </div>
           </div>
-          <div className="stat-value">0 DH</div>
-          <div className="stat-label">Consommation carburant (MAD)</div>
+          <div className="stat-value">{formatCurrency(stats.totalConsumption)}</div>
+          <div className="stat-label">Consommation carburant</div>
         </div>
       </div>
       
       <div className="chart-container">
         <div className="chart-header">
           <h3 className="chart-title">Analyse des consommations - 2025</h3>
-          <button className="chart-menu">
+          <button className="chart-menu" onClick={loadDashboardData}>
             <MoreHorizontal size={20} />
           </button>
         </div>
         <div className="chart-placeholder">
-          <div>
-            <BarChart3 size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
-            <p>Graphique des consommations par mois</p>
-          </div>
+          {chartData.length > 0 ? (
+            <div className="chart-data">
+              <div className="chart-bars">
+                {chartData.map((data, index) => (
+                  <div key={index} className="chart-bar">
+                    <div 
+                      className="bar" 
+                      style={{ 
+                        height: `${(data.amount / Math.max(...chartData.map(d => d.amount))) * 100}%` 
+                      }}
+                    ></div>
+                    <span className="bar-label">{data.month}</span>
+                    <span className="bar-value">{formatCurrency(data.amount)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
+              <BarChart3 size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+              <p style={{ marginBottom: '0.5rem', fontSize: '1.1rem', fontWeight: '500' }}>
+                Aucune donnée de consommation disponible
+              </p>
+              <p style={{ fontSize: '0.9rem', opacity: 0.8 }}>
+                Ajoutez des consommations de carburant pour voir l'analyse des données
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Users, Plus, List, LogOut, User, Mail, Lock, Eye, Edit2, Trash2, AlertCircle } from 'lucide-react';
-import authService from '../services/authService';
+import { X, Users, Plus, List, User, Mail, Lock, Edit2, Trash2, AlertCircle } from 'lucide-react';
 import adminService from '../services/adminService';
 
-const AdminDashboard = () => {
+const SettingsModal = ({ isOpen, onClose, user }) => {
   const [activeSection, setActiveSection] = useState('add-responsible');
   const [responsibles, setResponsibles] = useState([]);
   const [formData, setFormData] = useState({
@@ -17,23 +15,12 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const navigate = useNavigate();
 
   useEffect(() => {
-    checkAuth();
-    if (activeSection === 'list-responsibles') {
+    if (isOpen && activeSection === 'list-responsibles') {
       loadResponsibles();
     }
-  }, [activeSection]);
-
-  const checkAuth = () => {
-    const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    
-    if (!token || user.role !== 'admin') {
-      navigate('/login');
-    }
-  };
+  }, [isOpen, activeSection]);
 
   const loadResponsibles = async () => {
     try {
@@ -48,20 +35,6 @@ const AdminDashboard = () => {
       setError(error.message || 'Erreur lors du chargement des responsables');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await authService.logout();
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      navigate('/login');
-    } catch (error) {
-      // Even if logout fails, redirect to login
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      navigate('/login');
     }
   };
 
@@ -83,7 +56,6 @@ const AdminDashboard = () => {
     
     try {
       if (editingId) {
-        // Update existing responsible
         const response = await adminService.updateUser(editingId, formData);
         if (response.success) {
           setSuccess('Responsable modifié avec succès');
@@ -93,7 +65,6 @@ const AdminDashboard = () => {
           return;
         }
       } else {
-        // Add new responsible
         const response = await adminService.createUser(formData);
         if (response.success) {
           setSuccess('Responsable ajouté avec succès');
@@ -103,7 +74,6 @@ const AdminDashboard = () => {
         }
       }
       
-      // Reset form
       setFormData({
         nom: '',
         prenom: '',
@@ -111,7 +81,6 @@ const AdminDashboard = () => {
         password: ''
       });
       
-      // Reload list if we're on the list section
       if (activeSection === 'list-responsibles') {
         loadResponsibles();
       }
@@ -127,7 +96,7 @@ const AdminDashboard = () => {
       nom: responsible.nom,
       prenom: responsible.prenom,
       email: responsible.email,
-      password: '' // Don't populate password for security
+      password: ''
     });
     setEditingId(responsible.id);
     setActiveSection('add-responsible');
@@ -158,9 +127,9 @@ const AdminDashboard = () => {
   };
 
   const renderAddResponsibleForm = () => (
-    <div className="admin-content">
-      <div className="admin-content-header">
-        <h2>{editingId ? 'Modifier le responsable' : 'Ajouter un nouveau responsable'}</h2>
+    <div className="settings-content">
+      <div className="settings-content-header">
+        <h3>{editingId ? 'Modifier le responsable' : 'Ajouter un nouveau responsable'}</h3>
         <p>Remplissez le formulaire pour {editingId ? 'modifier' : 'ajouter'} un responsable</p>
       </div>
 
@@ -177,7 +146,7 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="admin-form">
+      <form onSubmit={handleSubmit} className="settings-form">
         <div className="form-grid">
           <div className="form-group">
             <label className="form-label">
@@ -268,9 +237,9 @@ const AdminDashboard = () => {
   );
 
   const renderResponsiblesList = () => (
-    <div className="admin-content">
-      <div className="admin-content-header">
-        <h2>Liste des responsables</h2>
+    <div className="settings-content">
+      <div className="settings-content-header">
+        <h3>Liste des responsables</h3>
         <p>Gérez tous les responsables du système</p>
       </div>
 
@@ -350,51 +319,53 @@ const AdminDashboard = () => {
     </div>
   );
 
+  if (!isOpen) return null;
+
   return (
-    <div className="admin-dashboard">
-      <div className="admin-sidebar">
-        <div className="admin-sidebar-header">
-          <h2>Panneau Admin</h2>
-        </div>
-        
-        <nav className="admin-nav">
-          <button 
-            className={`admin-nav-item ${activeSection === 'add-responsible' ? 'active' : ''}`}
-            onClick={() => {
-              setActiveSection('add-responsible');
-              clearMessages();
-            }}
-          >
-            <Plus size={18} />
-            Ajouter responsable
-          </button>
-          
-          <button 
-            className={`admin-nav-item ${activeSection === 'list-responsibles' ? 'active' : ''}`}
-            onClick={() => {
-              setActiveSection('list-responsibles');
-              clearMessages();
-            }}
-          >
-            <List size={18} />
-            Liste des responsables
-          </button>
-        </nav>
-
-        <div className="admin-sidebar-footer">
-          <button className="admin-logout-btn" onClick={handleLogout}>
-            <LogOut size={18} />
-            Déconnexion
+    <div className="settings-modal-overlay">
+      <div className="settings-modal">
+        <div className="settings-modal-header">
+          <h2>Paramètres Admin</h2>
+          <button className="settings-modal-close" onClick={onClose}>
+            <X size={20} />
           </button>
         </div>
-      </div>
 
-      <div className="admin-main">
-        {activeSection === 'add-responsible' && renderAddResponsibleForm()}
-        {activeSection === 'list-responsibles' && renderResponsiblesList()}
+        <div className="settings-modal-content">
+          <div className="settings-sidebar">
+            <nav className="settings-nav">
+              <button 
+                className={`settings-nav-item ${activeSection === 'add-responsible' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveSection('add-responsible');
+                  clearMessages();
+                }}
+              >
+                <Plus size={18} />
+                Ajouter responsable
+              </button>
+              
+              <button 
+                className={`settings-nav-item ${activeSection === 'list-responsibles' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveSection('list-responsibles');
+                  clearMessages();
+                }}
+              >
+                <List size={18} />
+                Liste des responsables
+              </button>
+            </nav>
+          </div>
+
+          <div className="settings-main">
+            {activeSection === 'add-responsible' && renderAddResponsibleForm()}
+            {activeSection === 'list-responsibles' && renderResponsiblesList()}
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
-export default AdminDashboard; 
+export default SettingsModal; 

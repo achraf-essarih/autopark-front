@@ -50,5 +50,6 @@ async function query(sql, params = []) {
 module.exports = {
   pool,
   query,
-  testConnection
+  testConnection,
+  execute: pool.execute.bind(pool)
 }; 

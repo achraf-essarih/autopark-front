@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, Settings, Moon, User, LogOut, ChevronDown } from 'lucide-react';
 import authService from '../services/authService';
+import SettingsModal from './SettingsModal';
 
 const Header = () => {
   const [user, setUser] = useState(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -15,13 +17,34 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
+      // Fermer le menu utilisateur
+      setShowUserMenu(false);
+      
+      // Appeler le service de déconnexion
       await authService.logout();
+      
+      // Nettoyer le localStorage (au cas où)
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      
+      // Rediriger vers la page de login
       navigate('/login');
     } catch (error) {
       console.error('Erreur lors de la déconnexion:', error);
-      // Even if logout fails, redirect to login
+      
+      // Même en cas d'erreur, nettoyer le localStorage et rediriger
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
       navigate('/login');
     }
+  };
+
+  const handleSettingsClick = () => {
+    setShowSettingsModal(true);
+  };
+
+  const handleCloseSettings = () => {
+    setShowSettingsModal(false);
   };
 
   return (
@@ -36,9 +59,14 @@ const Header = () => {
         <button className="header-icon">
           <Moon size={20} />
         </button>
-        <button className="header-icon">
-          <Settings size={20} />
-        </button>
+        
+        {/* Afficher l'icône settings uniquement pour les admins */}
+        {user && user.role === 'admin' && (
+          <button className="header-icon" onClick={handleSettingsClick}>
+            <Settings size={20} />
+          </button>
+        )}
+        
         <button className="header-icon">
           <Bell size={20} />
         </button>
@@ -92,6 +120,13 @@ const Header = () => {
           onClick={() => setShowUserMenu(false)}
         />
       )}
+
+      {/* Modal Settings */}
+      <SettingsModal 
+        isOpen={showSettingsModal}
+        onClose={handleCloseSettings}
+        user={user}
+      />
     </header>
   );
 };

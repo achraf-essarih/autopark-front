@@ -30,12 +30,9 @@ const Login = () => {
       const response = await authService.login(formData.email, formData.password);
       
       if (response.success) {
-        // Redirect based on role
-        if (response.user.role === 'admin') {
-          navigate('/admin/dashboard');
-        } else {
-          navigate('/'); // Redirect to main dashboard for responsibles
-        }
+        // Redirect all users to main dashboard
+        // Admins will have access to settings modal via the settings icon
+        navigate('/');
       } else {
         setError(response.message || 'Erreur de connexion');
       }

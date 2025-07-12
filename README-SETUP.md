@@ -70,11 +70,8 @@ PORT=5000
 NODE_ENV=development
 ```
 
-### 4. Initialiser la base de données avec des données de test
-```bash
-# Exécuter le script de seeding
-node server/scripts/seed.js
-```
+### 4. Initialiser la base de données
+La base de données est automatiquement initialisée avec les données de test grâce au script SQL `database/create_database.sql` que vous avez importé dans phpMyAdmin.
 
 ## 🚀 Démarrage
 
@@ -94,7 +91,7 @@ npm start
 
 ## 🔑 Comptes de démonstration
 
-Après l'exécution du script de seeding, les comptes suivants sont disponibles :
+Les comptes de démonstration suivants sont disponibles :
 
 ### 👤 Administrateur
 - **Email :** admin@autoparc.com
@@ -235,8 +232,8 @@ auto-parc/
 
 ### Commandes utiles
 ```bash
-# Réinitialiser la base de données
-node server/scripts/seed.js
+# Réinitialiser la base de données (réimporter le fichier SQL)
+# Via phpMyAdmin : Importer database/create_database.sql
 
 # Tester la connexion API
 curl http://localhost:5000/api/health

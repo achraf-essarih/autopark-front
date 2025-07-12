@@ -1,5 +1,4 @@
--- Script de création de la base de données Auto Parc
--- Exécuter ce script dans phpMyAdmin
+
 
 -- Créer la base de données
 CREATE DATABASE IF NOT EXISTS auto_parc_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

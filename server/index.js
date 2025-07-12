@@ -4,6 +4,10 @@ const cors = require('cors');
 const { testConnection } = require('./config/database');
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
+const vehicleRoutes = require('./routes/vehicles');
+const consumptionRoutes = require('./routes/consumptions');
+const interventionRoutes = require('./routes/interventions');
+const missionRoutes = require('./routes/missions');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -19,6 +23,10 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/vehicles', vehicleRoutes);
+app.use('/api/consumptions', consumptionRoutes);
+app.use('/api/interventions', interventionRoutes);
+app.use('/api/missions', missionRoutes);
 
 // Route de test
 app.get('/api/health', (req, res) => {
