@@ -143,14 +143,20 @@ const Dashboard = () => {
               </div>
             </div>
           ) : (
-            <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
-              <BarChart3 size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
-              <p style={{ marginBottom: '0.5rem', fontSize: '1.1rem', fontWeight: '500' }}>
+            <div className="chart-empty-state">
+              <div className="chart-empty-icon">
+                <BarChart3 size={32} />
+              </div>
+              <div className="chart-empty-title">
                 Aucune donnée de consommation disponible
-              </p>
-              <p style={{ fontSize: '0.9rem', opacity: 0.8 }}>
+              </div>
+              <div className="chart-empty-subtitle">
                 Ajoutez des consommations de carburant pour voir l'analyse des données
-              </p>
+              </div>
+              <a href="/consommations" className="chart-empty-action">
+                <Fuel size={16} />
+                Ajouter une consommation
+              </a>
             </div>
           )}
         </div>

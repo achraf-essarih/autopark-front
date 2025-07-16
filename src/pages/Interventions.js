@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Edit2, Trash2, AlertCircle, CheckCircle, Search } from 'lucide-react';
+import { Edit2, Trash2, AlertCircle, CheckCircle, Search, Car, Calendar, FileText, Settings } from 'lucide-react';
 import { INTERVENTION_TABS } from '../utils/constants';
 import interventionService from '../services/interventionService';
 import vehicleService from '../services/vehicleService';
@@ -102,124 +102,118 @@ const Interventions = () => {
       } else {
         setMessage({
           type: 'error',
-          text: result.message
+          text: result.message || 'Erreur lors de l\'opération'
         });
       }
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde:', error);
+      console.error('Erreur lors de la soumission:', error);
       setMessage({
         type: 'error',
-        text: 'Erreur lors de la sauvegarde de l\'intervention'
+        text: 'Erreur lors de l\'opération'
       });
     }
 
-    // Effacer le message après 5 secondes
     setTimeout(() => setMessage(null), 5000);
   };
 
   const handleEdit = (intervention) => {
     setFormData({
-      vehicule_id: intervention.vehicule_id || '',
-      type_intervention: intervention.type_intervention || activeTab,
+      vehicule_id: intervention.vehicule_id,
+      type_intervention: intervention.type_intervention,
       date_intervention: intervention.date_intervention ? intervention.date_intervention.split('T')[0] : '',
       description: intervention.description || '',
       cout: intervention.cout || '',
-      statut: intervention.statut || 'Planifiée',
+      statut: intervention.statut,
       notes: intervention.notes || ''
     });
     setEditingIntervention(intervention);
   };
 
-  const handleDelete = async (interventionId) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette intervention ?')) {
-      try {
-        const result = await interventionService.deleteIntervention(interventionId);
-        
-        if (result.success) {
-          setMessage({
-            type: 'success',
-            text: result.message
-          });
-          loadData();
-        } else {
-          setMessage({
-            type: 'error',
-            text: result.message
-          });
-        }
-      } catch (error) {
-        console.error('Erreur lors de la suppression:', error);
+  const handleDelete = async (id) => {
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette intervention ?')) {
+      return;
+    }
+
+    try {
+      const result = await interventionService.deleteIntervention(id);
+      
+      if (result.success) {
+        setMessage({
+          type: 'success',
+          text: result.message
+        });
+        loadData();
+      } else {
         setMessage({
           type: 'error',
-          text: 'Erreur lors de la suppression de l\'intervention'
+          text: result.message || 'Erreur lors de la suppression'
         });
       }
-
-      // Effacer le message après 5 secondes
-      setTimeout(() => setMessage(null), 5000);
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+      setMessage({
+        type: 'error',
+        text: 'Erreur lors de la suppression'
+      });
     }
+
+    setTimeout(() => setMessage(null), 5000);
   };
+
+  const filteredInterventions = interventions.filter(intervention => {
+    const matchesType = intervention.type_intervention === activeTab;
+    const matchesSearch = searchTerm === '' || 
+      intervention.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      getVehicleName(intervention.vehicule_id).toLowerCase().includes(searchTerm.toLowerCase());
+    
+    return matchesType && matchesSearch;
+  });
 
   const getVehicleName = (vehicleId) => {
     const vehicle = vehicles.find(v => v.id === vehicleId);
     return vehicle ? `${vehicle.marque} ${vehicle.modele} (${vehicle.immatriculation})` : 'Véhicule inconnu';
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('fr-MA', {
-      style: 'currency',
-      currency: 'MAD',
-      minimumFractionDigits: 2
-    }).format(amount);
-  };
-
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('fr-FR');
   };
 
-  const getStatusColor = (statut) => {
-    switch (statut) {
-      case 'Terminée': return '#10b981';
-      case 'En cours': return '#f59e0b';
-      case 'Planifiée': return '#3b82f6';
-      case 'Annulée': return '#ef4444';
-      default: return '#6b7280';
+  const formatCurrency = (amount) => {
+    return `${parseFloat(amount).toFixed(2)} MAD`;
+  };
+
+  const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'planifiée': return 'pending';
+      case 'en cours': return 'progress';
+      case 'terminée': return 'completed';
+      case 'annulée': return 'cancelled';
+      default: return 'pending';
     }
   };
 
-  const filteredInterventions = interventions.filter(intervention => {
-    const matchesTab = intervention.type_intervention === activeTab;
-    const vehicleName = getVehicleName(intervention.vehicule_id).toLowerCase();
-    const searchLower = searchTerm.toLowerCase();
-    const matchesSearch = vehicleName.includes(searchLower) || 
-                         intervention.description?.toLowerCase().includes(searchLower) ||
-                         intervention.statut?.toLowerCase().includes(searchLower);
-    
-    return matchesTab && matchesSearch;
-  });
-
-  const handleTabChange = (tabId) => {
-    setActiveTab(tabId);
-    setFormData(prev => ({
-      ...prev,
-      type_intervention: tabId
-    }));
-    setEditingIntervention(null);
-  };
+  useEffect(() => {
+    setFormData(prev => ({ ...prev, type_intervention: activeTab }));
+  }, [activeTab]);
 
   if (loading) {
     return (
       <div className="main-content">
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Chargement des interventions...</p>
+        <div className="page-header">
+          <h1 className="page-title">Interventions</h1>
         </div>
+        <div className="loading-spinner">Chargement...</div>
       </div>
     );
   }
 
   return (
     <div className="main-content">
+      <div className="page-header">
+        <h1 className="page-title">Gestion des Interventions</h1>
+        <p className="page-subtitle">Planifiez et suivez toutes les interventions de votre parc automobile</p>
+      </div>
+
       {message && (
         <div className={`message ${message.type}`}>
           {message.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
@@ -227,113 +221,142 @@ const Interventions = () => {
         </div>
       )}
 
-      <div className="page-header">
-        <h1 className="page-title">Interventions</h1>
-      </div>
-
       <div className="intervention-tabs">
-        {INTERVENTION_TABS.map((tab) => {
-          const Icon = tab.icon;
-          return (
-            <button
-              key={tab.id}
-              className={`intervention-tab ${activeTab === tab.id ? 'active' : ''}`}
-              onClick={() => handleTabChange(tab.id)}
-            >
-              <Icon size={18} />
-              {tab.label}
-            </button>
-          );
-        })}
+        {INTERVENTION_TABS.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`intervention-tab ${activeTab === tab.id ? 'active' : ''}`}
+          >
+            <tab.icon size={20} />
+            <span>{tab.label}</span>
+          </button>
+        ))}
       </div>
 
-      <div className="intervention-content">
-        <div style={{ marginBottom: '2rem' }}>
-          <h3 style={{ marginBottom: '1.5rem', color: '#1f2937' }}>
-            {editingIntervention ? 'Modifier l\'intervention' : 'Ajouter une intervention'} | {INTERVENTION_TABS.find(t => t.id === activeTab)?.label} ({filteredInterventions.length})
+      <div className="content-container">
+        <div className="intervention-form">
+          <h3 className="form-title">
+            {editingIntervention ? 'Modifier l\'intervention' : 'Ajouter une intervention'} | {INTERVENTION_TABS.find(t => t.id === activeTab)?.label}
           </h3>
+          
           <form onSubmit={handleSubmit}>
-            <div className="form-grid">
-              <div className="form-group">
-                <label className="form-label">Véhicule *</label>
-                <select 
-                  name="vehicule_id"
-                  value={formData.vehicule_id}
-                  onChange={handleInputChange}
-                  className="form-select"
-                  required
-                >
-                  <option value="">Choisissez un véhicule</option>
-                  {vehicles.map(vehicle => (
-                    <option key={vehicle.id} value={vehicle.id}>
-                      {vehicle.marque} {vehicle.modele} ({vehicle.immatriculation})
-                    </option>
-                  ))}
-                </select>
+            {/* Section 1: Informations principales */}
+            <div className="form-section">
+              <div className="section-header">
+                <Car size={20} />
+                <h4>Informations principales</h4>
               </div>
-              <div className="form-group">
-                <label className="form-label">Date *</label>
-                <input 
-                  type="date" 
-                  name="date_intervention"
-                  value={formData.date_intervention}
-                  onChange={handleInputChange}
-                  className="form-input" 
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Coût (MAD)</label>
-                <input 
-                  type="number" 
-                  name="cout"
-                  value={formData.cout}
-                  onChange={handleInputChange}
-                  className="form-input" 
-                  step="0.01"
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Statut *</label>
-                <select 
-                  name="statut"
-                  value={formData.statut}
-                  onChange={handleInputChange}
-                  className="form-select"
-                >
-                  <option value="Planifiée">Planifiée</option>
-                  <option value="En cours">En cours</option>
-                  <option value="Terminée">Terminée</option>
-                  <option value="Annulée">Annulée</option>
-                </select>
+              <div className="form-grid-two">
+                <div className="form-field">
+                  <label className="form-label">
+                    Véhicule <span className="required">*</span>
+                  </label>
+                  <select 
+                    name="vehicule_id"
+                    value={formData.vehicule_id}
+                    onChange={handleInputChange}
+                    className="form-input-clean"
+                    required
+                  >
+                    <option value="">Sélectionnez un véhicule</option>
+                    {vehicles.map(vehicle => (
+                      <option key={vehicle.id} value={vehicle.id}>
+                        {vehicle.marque} {vehicle.modele} ({vehicle.immatriculation})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-field">
+                  <label className="form-label">
+                    Statut <span className="required">*</span>
+                  </label>
+                  <select 
+                    name="statut"
+                    value={formData.statut}
+                    onChange={handleInputChange}
+                    className="form-input-clean"
+                  >
+                    <option value="Planifiée">Planifiée</option>
+                    <option value="En cours">En cours</option>
+                    <option value="Terminée">Terminée</option>
+                    <option value="Annulée">Annulée</option>
+                  </select>
+                </div>
               </div>
             </div>
-            <div className="form-group" style={{ marginTop: '1.5rem' }}>
-              <label className="form-label">Description</label>
-              <textarea 
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                className="form-textarea" 
-                rows="3"
-              ></textarea>
+
+            {/* Section 2: Planning et dates */}
+            <div className="form-section">
+              <div className="section-header">
+                <Calendar size={20} />
+                <h4>Planning et coût</h4>
+              </div>
+              <div className="form-grid-two">
+                <div className="form-field">
+                  <label className="form-label">
+                    Date d'intervention <span className="required">*</span>
+                  </label>
+                  <input 
+                    type="date" 
+                    name="date_intervention"
+                    value={formData.date_intervention}
+                    onChange={handleInputChange}
+                    className="form-input-clean" 
+                    required
+                  />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Coût (MAD)</label>
+                  <input 
+                    type="number" 
+                    name="cout"
+                    value={formData.cout}
+                    onChange={handleInputChange}
+                    className="form-input-clean" 
+                    step="0.01"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
             </div>
-            <div className="form-group" style={{ marginTop: '1.5rem' }}>
-              <label className="form-label">Notes</label>
-              <textarea 
-                name="notes"
-                value={formData.notes}
-                onChange={handleInputChange}
-                className="form-textarea" 
-                rows="3"
-              ></textarea>
+
+            {/* Section 3: Détails et observations */}
+            <div className="form-section">
+              <div className="section-header">
+                <FileText size={20} />
+                <h4>Description et observations</h4>
+              </div>
+              <div className="form-field">
+                <label className="form-label">Description de l'intervention</label>
+                <textarea 
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  className="form-textarea-clean" 
+                  rows="3"
+                  placeholder="Décrivez en détail l'intervention à effectuer ou effectuée..."
+                ></textarea>
+              </div>
+              <div className="form-field">
+                <label className="form-label">Notes additionnelles</label>
+                <textarea 
+                  name="notes"
+                  value={formData.notes}
+                  onChange={handleInputChange}
+                  className="form-textarea-clean" 
+                  rows="3"
+                  placeholder="Commentaires, observations particulières..."
+                ></textarea>
+              </div>
             </div>
-            <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
+
+            <div className="form-actions">
               <button type="submit" className="btn btn-primary">
-                {editingIntervention ? 'Modifier' : 'Ajouter'}
+                {editingIntervention ? '✓ Modifier l\'intervention' : '+ Ajouter l\'intervention'}
               </button>
               {editingIntervention && (
-                <button type="button" className="btn" onClick={resetForm}>
+                <button type="button" className="btn btn-secondary" onClick={resetForm}>
                   Annuler
                 </button>
               )}
@@ -341,38 +364,48 @@ const Interventions = () => {
           </form>
         </div>
 
-        <div className="table-container">
-          {error && (
-            <div className="error-banner">
-              <AlertCircle size={20} />
-              <span>{error}</span>
-              <button onClick={loadData} className="retry-button">
-                Réessayer
-              </button>
-            </div>
-          )}
+        {error && (
+          <div className="message error">
+            <AlertCircle size={20} />
+            <span>{error}</span>
+            <button onClick={loadData} className="btn btn-secondary">
+              Réessayer
+            </button>
+          </div>
+        )}
 
-          <div style={{ padding: '1rem', borderBottom: '1px solid #e5e7eb', background: '#f9fafb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3>Interventions {INTERVENTION_TABS.find(t => t.id === activeTab)?.label} ({filteredInterventions.length})</h3>
-            <div style={{ position: 'relative' }}>
-              <Search size={20} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#6b7280' }} />
-              <input 
-                type="text" 
-                placeholder="Rechercher..." 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="form-input" 
-                style={{ width: '200px', paddingLeft: '2.5rem' }} 
-              />
+        <div className="search-container">
+          <h3 style={{ color: 'var(--glass-text-primary)', margin: 0 }}>
+            Interventions {INTERVENTION_TABS.find(t => t.id === activeTab)?.label} ({filteredInterventions.length})
+          </h3>
+          <div style={{ position: 'relative' }}>
+            <Search size={20} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--glass-text-muted)' }} />
+            <input 
+              type="text" 
+              placeholder="Rechercher..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input" 
+              style={{ width: '250px', paddingLeft: '2.5rem' }} 
+            />
+          </div>
+        </div>
+
+        {filteredInterventions.length === 0 ? (
+          <div className="chart-empty-state">
+            <div className="chart-empty-icon">
+              <AlertCircle size={48} />
+            </div>
+            <div className="chart-empty-title">
+              {searchTerm ? 'Aucune intervention trouvée' : 'Aucune intervention enregistrée'}
+            </div>
+            <div className="chart-empty-subtitle">
+              {searchTerm ? 'Essayez de modifier votre recherche' : `Commencez par ajouter une intervention ${INTERVENTION_TABS.find(t => t.id === activeTab)?.label.toLowerCase()}`}
             </div>
           </div>
-
-          {filteredInterventions.length === 0 ? (
-            <div className="empty-state">
-              <p>{searchTerm ? 'Aucune intervention trouvée' : 'Aucune intervention enregistrée'}</p>
-            </div>
-          ) : (
-            <table className="table">
+        ) : (
+          <div className="professional-table">
+            <table>
               <thead>
                 <tr>
                   <th>Véhicule</th>
@@ -391,25 +424,22 @@ const Interventions = () => {
                     <td>{intervention.description || 'N/A'}</td>
                     <td>{intervention.cout ? formatCurrency(intervention.cout) : 'N/A'}</td>
                     <td>
-                      <span 
-                        className="status-badge" 
-                        style={{ backgroundColor: getStatusColor(intervention.statut) }}
-                      >
+                      <span className={`status-badge ${getStatusColor(intervention.statut)}`}>
                         {intervention.statut}
                       </span>
                     </td>
                     <td>
-                      <div className="actions">
+                      <div className="table-actions">
                         <button 
                           onClick={() => handleEdit(intervention)}
-                          className="btn-icon"
+                          className="action-btn edit"
                           title="Modifier"
                         >
                           <Edit2 size={16} />
                         </button>
                         <button 
                           onClick={() => handleDelete(intervention.id)}
-                          className="btn-icon btn-danger"
+                          className="action-btn delete"
                           title="Supprimer"
                         >
                           <Trash2 size={16} />
@@ -420,8 +450,8 @@ const Interventions = () => {
                 ))}
               </tbody>
             </table>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

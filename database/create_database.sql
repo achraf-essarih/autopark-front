@@ -95,30 +95,46 @@ CREATE TABLE consommations (
     INDEX idx_responsable (responsable_id)
 );
 
--- Table des ordres de mission
-CREATE TABLE ordres_missions (
+-- Table des chauffeurs
+CREATE TABLE chauffeurs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    prenom VARCHAR(100) NOT NULL,
+    numero_permis VARCHAR(50) UNIQUE,
+    type_permis ENUM('B', 'C', 'D', 'BE', 'CE', 'DE') NOT NULL DEFAULT 'B',
+    date_expiration_permis DATE NOT NULL,
+    telephone VARCHAR(20),
+    email VARCHAR(255),
+    adresse TEXT,
+    date_naissance DATE,
+    actif BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_nom (nom, prenom),
+    INDEX idx_permis (numero_permis),
+    INDEX idx_actif (actif)
+);
+
+-- Table des missions
+CREATE TABLE missions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     vehicule_id INT NOT NULL,
-    type_mission VARCHAR(100) NOT NULL,
-    objet_mission VARCHAR(255) NOT NULL,
+    chauffeur_id INT NULL,
+    objet VARCHAR(255) NOT NULL,
     date_depart DATE NOT NULL,
     date_retour DATE NOT NULL,
-    lieu_destination VARCHAR(255) NOT NULL,
+    destination VARCHAR(255) NOT NULL,
     personnel_transporte VARCHAR(255),
-    kilometrage_depart INT NULL CHECK (kilometrage_depart >= 0),
-    kilometrage_retour INT NULL CHECK (kilometrage_retour >= 0),
-    distance_parcourue INT NULL CHECK (distance_parcourue >= 0),
     statut ENUM('Planifié', 'En cours', 'Terminé', 'Annulé') NOT NULL DEFAULT 'Planifié',
-    observations TEXT,
+    notes TEXT,
     responsable_id INT NOT NULL,
-    approuve_par INT NULL,
-    date_approbation DATETIME NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (vehicule_id) REFERENCES vehicles(id) ON DELETE CASCADE,
+    FOREIGN KEY (chauffeur_id) REFERENCES chauffeurs(id) ON DELETE SET NULL,
     FOREIGN KEY (responsable_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (approuve_par) REFERENCES users(id) ON DELETE SET NULL,
     INDEX idx_vehicule (vehicule_id),
+    INDEX idx_chauffeur (chauffeur_id),
     INDEX idx_date_depart (date_depart),
     INDEX idx_statut (statut),
     INDEX idx_responsable (responsable_id)
@@ -126,13 +142,21 @@ CREATE TABLE ordres_missions (
 
 -- Insérer l'administrateur par défaut
 INSERT INTO users (nom, prenom, email, mot_de_passe, role) VALUES 
-('Administrateur', 'Système', 'admin@autoparc.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
+('Administrateur', 'Système', 'admin@autoparc.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye.IjKDFOgXgqnJDOZxLDMVmfHcQzjm3y', 'admin');
 
 -- Insérer des responsables de test
 INSERT INTO users (nom, prenom, email, mot_de_passe, role) VALUES 
 ('Alami', 'Mohammed', 'mohammed.alami@autoparc.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'responsable'),
 ('Benali', 'Fatima', 'fatima.benali@autoparc.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'responsable'),
 ('Elhajji', 'Ahmed', 'ahmed.elhajji@autoparc.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'responsable');
+
+-- Insérer des chauffeurs de test
+INSERT INTO chauffeurs (nom, prenom, numero_permis, type_permis, date_expiration_permis, telephone, email) VALUES
+('Alami', 'Mohammed', 'B123456789', 'B', '2026-12-31', '0612345678', 'mohammed.alami@chauffeur.com'),
+('Benali', 'Fatima', 'B987654321', 'B', '2025-08-15', '0687654321', 'fatima.benali@chauffeur.com'),
+('Elhajji', 'Ahmed', 'C456789123', 'C', '2027-03-20', '0698765432', 'ahmed.elhajji@chauffeur.com'),
+('Tazi', 'Youssef', 'B789123456', 'B', '2025-11-10', '0623456789', 'youssef.tazi@chauffeur.com'),
+('Benjelloun', 'Aicha', 'B321654987', 'B', '2026-05-25', '0634567890', 'aicha.benjelloun@chauffeur.com');
 
 -- Insérer des véhicules de test
 INSERT INTO vehicles (nom_vehicule, marque, modele, date_mise_circulation, immatriculation, mode_carburant, boite_vitesses, nombre_ports, etat_mecanique, puissance_fiscale, plein_reservoir, kilometrage, consommation_l100, description, responsable_id) VALUES
@@ -143,3 +167,8 @@ INSERT INTO vehicles (nom_vehicule, marque, modele, date_mise_circulation, immat
 -- Note: Les mots de passe hachés correspondent à:
 -- admin123 pour l'admin
 -- password123 pour les responsables 
+
+-- Créer un mot de passe simple "123456"
+UPDATE users 
+SET mot_de_passe = '$2a$10$xsX6HVtWCNM6KJQB0mToleWa8Wz6kJYkITb4koGSf0Tb7kdEnZzWu' 
+WHERE email = 'admin@autoparc.com'; 

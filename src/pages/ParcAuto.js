@@ -200,7 +200,7 @@ const ParcAuto = () => {
 
       <div className="page-header">
         <h1 className="page-title">Parc Auto</h1>
-        <div style={{ display: 'flex', gap: '1rem' }}>
+        <div className="page-actions">
           <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
             <Plus size={18} />
             Nouveau véhicule
@@ -209,14 +209,14 @@ const ParcAuto = () => {
       </div>
 
       {showForm && (
-        <div className="form-container">
-          <h3 style={{ marginBottom: '1.5rem', color: '#1f2937' }}>
+        <div className="content-container">
+          <h3 style={{ marginBottom: '1.5rem', color: 'var(--glass-text-primary)' }}>
             {editingVehicle ? 'Modifier le véhicule' : 'Ajouter un véhicule'}
           </h3>
           <form onSubmit={handleSubmit}>
-            <div className="form-grid">
-              <div className="form-group">
-                <label className="form-label">Nom de véhicule *</label>
+            <div className="professional-form">
+              <div className="form-field">
+                <label className="form-label">Nom de véhicule <span className="required">*</span></label>
                 <input 
                   type="text" 
                   name="nom"
@@ -226,8 +226,8 @@ const ParcAuto = () => {
                   required
                 />
               </div>
-              <div className="form-group">
-                <label className="form-label">Marque de véhicule *</label>
+              <div className="form-field">
+                <label className="form-label">Marque de véhicule <span className="required">*</span></label>
                 <input 
                   type="text" 
                   name="marque"
@@ -237,8 +237,8 @@ const ParcAuto = () => {
                   required
                 />
               </div>
-              <div className="form-group">
-                <label className="form-label">Modèle de véhicule *</label>
+              <div className="form-field">
+                <label className="form-label">Modèle de véhicule <span className="required">*</span></label>
                 <input 
                   type="text" 
                   name="modele"
@@ -248,8 +248,8 @@ const ParcAuto = () => {
                   required
                 />
               </div>
-              <div className="form-group">
-                <label className="form-label">Date de mise en circulation *</label>
+              <div className="form-field">
+                <label className="form-label">Date de mise en circulation <span className="required">*</span></label>
                 <input 
                   type="date" 
                   name="date_mise_circulation"
@@ -259,8 +259,8 @@ const ParcAuto = () => {
                   required
                 />
               </div>
-              <div className="form-group">
-                <label className="form-label">Immatriculation *</label>
+              <div className="form-field">
+                <label className="form-label">Immatriculation <span className="required">*</span></label>
                 <input 
                   type="text" 
                   name="immatriculation"
@@ -270,8 +270,8 @@ const ParcAuto = () => {
                   required
                 />
               </div>
-              <div className="form-group">
-                <label className="form-label">Mode carburant *</label>
+              <div className="form-field">
+                <label className="form-label">Mode carburant <span className="required">*</span></label>
                 <select 
                   name="carburant"
                   value={formData.carburant}
@@ -282,8 +282,8 @@ const ParcAuto = () => {
                   <option value="Diesel">Diesel</option>
                 </select>
               </div>
-              <div className="form-group">
-                <label className="form-label">Boîte de vitesses *</label>
+              <div className="form-field">
+                <label className="form-label">Boîte de vitesses <span className="required">*</span></label>
                 <select 
                   name="boite_vitesses"
                   value={formData.boite_vitesses}
@@ -294,8 +294,8 @@ const ParcAuto = () => {
                   <option value="Automatique">Automatique</option>
                 </select>
               </div>
-              <div className="form-group">
-                <label className="form-label">Rapport *</label>
+              <div className="form-field">
+                <label className="form-label">Rapport <span className="required">*</span></label>
                 <select 
                   name="rapport"
                   value={formData.rapport}
@@ -306,8 +306,8 @@ const ParcAuto = () => {
                   <option value="6 Rapport">6 Rapport</option>
                 </select>
               </div>
-              <div className="form-group">
-                <label className="form-label">Nombre de portes *</label>
+              <div className="form-field">
+                <label className="form-label">Nombre de portes <span className="required">*</span></label>
                 <select 
                   name="nombre_portes"
                   value={formData.nombre_portes}
@@ -319,8 +319,8 @@ const ParcAuto = () => {
                   <option value="5 Port">5 Portes</option>
                 </select>
               </div>
-              <div className="form-group">
-                <label className="form-label">État Mécanique *</label>
+              <div className="form-field">
+                <label className="form-label">État Mécanique <span className="required">*</span></label>
                 <select 
                   name="etat_mecanique"
                   value={formData.etat_mecanique}
@@ -332,8 +332,8 @@ const ParcAuto = () => {
                   <option value="Excellent">Excellent</option>
                 </select>
               </div>
-              <div className="form-group">
-                <label className="form-label">Puissance fiscal (cv) *</label>
+              <div className="form-field">
+                <label className="form-label">Puissance fiscal (cv) <span className="required">*</span></label>
                 <input 
                   type="number" 
                   name="puissance_fiscale"
@@ -345,12 +345,10 @@ const ParcAuto = () => {
                   required
                   title="La puissance fiscale doit être entre 1 et 50 CV"
                 />
-                <small style={{ color: '#6b7280', fontSize: '0.875rem' }}>
-                  Valeur entre 1 et 50 CV
-                </small>
+                <div className="form-help">Valeur entre 1 et 50 CV</div>
               </div>
-              <div className="form-group">
-                <label className="form-label">Plein de réservoir (L) *</label>
+              <div className="form-field">
+                <label className="form-label">Plein de réservoir (L) <span className="required">*</span></label>
                 <input 
                   type="number" 
                   name="plein_reservoir"
@@ -363,12 +361,10 @@ const ParcAuto = () => {
                   required
                   title="Le plein de réservoir doit être entre 10.0 et 200.0 litres"
                 />
-                <small style={{ color: '#6b7280', fontSize: '0.875rem' }}>
-                  Valeur entre 10.0 et 200.0 litres
-                </small>
+                <div className="form-help">Valeur entre 10.0 et 200.0 litres</div>
               </div>
-              <div className="form-group">
-                <label className="form-label">Kilométrage *</label>
+              <div className="form-field">
+                <label className="form-label">Kilométrage <span className="required">*</span></label>
                 <input 
                   type="number" 
                   name="kilometrage"
@@ -379,12 +375,10 @@ const ParcAuto = () => {
                   required
                   title="Le kilométrage doit être positif"
                 />
-                <small style={{ color: '#6b7280', fontSize: '0.875rem' }}>
-                  Valeur en kilomètres
-                </small>
+                <div className="form-help">Valeur en kilomètres</div>
               </div>
-              <div className="form-group">
-                <label className="form-label">Consommation L/100km *</label>
+              <div className="form-field">
+                <label className="form-label">Consommation L/100km <span className="required">*</span></label>
                 <input 
                   type="number" 
                   name="consommation_100km"
@@ -397,12 +391,10 @@ const ParcAuto = () => {
                   required
                   title="La consommation doit être entre 3.0 et 25.0 L/100km"
                 />
-                <small style={{ color: '#6b7280', fontSize: '0.875rem' }}>
-                  Valeur entre 3.0 et 25.0 L/100km
-                </small>
+                <div className="form-help">Valeur entre 3.0 et 25.0 L/100km</div>
               </div>
             </div>
-            <div className="form-group" style={{ marginTop: '1.5rem' }}>
+            <div className="form-field full-width">
               <label className="form-label">Description</label>
               <textarea 
                 name="description"
@@ -410,10 +402,11 @@ const ParcAuto = () => {
                 onChange={handleInputChange}
                 className="form-textarea" 
                 rows="4"
+                placeholder="Description optionnelle du véhicule..."
               ></textarea>
             </div>
-            <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-              <button type="button" className="btn" onClick={resetForm}>
+            <div className="btn-group">
+              <button type="button" className="btn btn-secondary" onClick={resetForm}>
                 Annuler
               </button>
               <button type="submit" className="btn btn-primary">
@@ -424,24 +417,31 @@ const ParcAuto = () => {
         </div>
       )}
 
-      <div className="table-container">
+      <div className="content-container">
         {error && (
-          <div className="error-banner">
+          <div className="message error">
             <AlertCircle size={20} />
             <span>{error}</span>
-            <button onClick={loadVehicles} className="retry-button">
+            <button onClick={loadVehicles} className="btn btn-secondary">
               Réessayer
             </button>
           </div>
         )}
 
         {vehicles.length === 0 ? (
-          <div className="empty-state">
-            <Car size={64} style={{ marginBottom: '1rem', opacity: 0.3 }} />
-            <p>Aucun véhicule enregistré</p>
+          <div className="chart-empty-state">
+            <div className="chart-empty-icon">
+              <Car size={32} />
+            </div>
+            <div className="chart-empty-title">Aucun véhicule enregistré</div>
+            <div className="chart-empty-subtitle">Commencez par ajouter votre premier véhicule au parc automobile</div>
+            <button className="chart-empty-action" onClick={() => setShowForm(true)}>
+              <Plus size={16} />
+              Ajouter un véhicule
+            </button>
           </div>
         ) : (
-          <table className="table">
+          <table className="professional-table">
             <thead>
               <tr>
                 <th>Nom</th>
@@ -463,26 +463,23 @@ const ParcAuto = () => {
                   <td>{vehicle.immatriculation}</td>
                   <td>{vehicle.carburant}</td>
                   <td>
-                    <span 
-                      className="status-badge" 
-                      style={{ backgroundColor: getEtatColor(vehicle.etat_mecanique) }}
-                    >
+                    <span className={`status-badge ${vehicle.etat_mecanique === 'Excellent' ? 'success' : vehicle.etat_mecanique === 'Bon' ? 'warning' : 'danger'}`}>
                       {vehicle.etat_mecanique}
                     </span>
                   </td>
                   <td>{vehicle.kilometrage ? `${vehicle.kilometrage} km` : 'N/A'}</td>
                   <td>
-                    <div className="actions">
+                    <div className="table-actions">
                       <button 
                         onClick={() => handleEdit(vehicle)}
-                        className="btn-icon"
+                        className="action-btn edit"
                         title="Modifier"
                       >
                         <Edit2 size={16} />
                       </button>
                       <button 
                         onClick={() => handleDelete(vehicle.id)}
-                        className="btn-icon btn-danger"
+                        className="action-btn delete"
                         title="Supprimer"
                       >
                         <Trash2 size={16} />

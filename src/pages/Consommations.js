@@ -220,14 +220,14 @@ const Consommations = () => {
       </div>
 
       {showForm && (
-        <div className="form-container">
-          <h3 style={{ marginBottom: '1.5rem', color: '#1f2937' }}>
+        <div className="content-container">
+          <h3 style={{ marginBottom: '1.5rem', color: 'var(--glass-text-primary)' }}>
             {editingConsumption ? 'Modifier la consommation' : 'Ajouter une nouvelle consommation'}
           </h3>
           <form onSubmit={handleSubmit}>
-            <div className="form-grid">
-              <div className="form-group">
-                <label className="form-label">Véhicule *</label>
+            <div className="professional-form">
+              <div className="form-field">
+                <label className="form-label">Véhicule <span className="required">*</span></label>
                 <select 
                   name="vehicule_id"
                   value={formData.vehicule_id}
@@ -243,8 +243,8 @@ const Consommations = () => {
                   ))}
                 </select>
               </div>
-              <div className="form-group">
-                <label className="form-label">Date *</label>
+              <div className="form-field">
+                <label className="form-label">Date <span className="required">*</span></label>
                 <input 
                   type="date" 
                   name="date_consommation"
@@ -254,8 +254,8 @@ const Consommations = () => {
                   required
                 />
               </div>
-              <div className="form-group">
-                <label className="form-label">Type de carburant *</label>
+              <div className="form-field">
+                <label className="form-label">Type de carburant <span className="required">*</span></label>
                 <select 
                   name="type_carburant"
                   value={formData.type_carburant}
@@ -266,8 +266,8 @@ const Consommations = () => {
                   <option value="Diesel">Diesel</option>
                 </select>
               </div>
-              <div className="form-group">
-                <label className="form-label">Quantité (L) *</label>
+              <div className="form-field">
+                <label className="form-label">Quantité (L) <span className="required">*</span></label>
                 <input 
                   type="number" 
                   name="quantite"
@@ -278,8 +278,8 @@ const Consommations = () => {
                   required
                 />
               </div>
-              <div className="form-group">
-                <label className="form-label">Prix unitaire (MAD/L) *</label>
+              <div className="form-field">
+                <label className="form-label">Prix unitaire (MAD/L) <span className="required">*</span></label>
                 <input 
                   type="number" 
                   name="prix_unitaire"
@@ -290,8 +290,8 @@ const Consommations = () => {
                   required
                 />
               </div>
-              <div className="form-group">
-                <label className="form-label">Montant total (MAD) *</label>
+              <div className="form-field">
+                <label className="form-label">Montant total (MAD) <span className="required">*</span></label>
                 <input 
                   type="number" 
                   name="montant_total"
@@ -303,8 +303,8 @@ const Consommations = () => {
                   readOnly
                 />
               </div>
-              <div className="form-group">
-                <label className="form-label">Kilométrage *</label>
+              <div className="form-field">
+                <label className="form-label">Kilométrage <span className="required">*</span></label>
                 <input 
                   type="number" 
                   name="kilometrage"
@@ -314,7 +314,7 @@ const Consommations = () => {
                   required
                 />
               </div>
-              <div className="form-group">
+              <div className="form-field">
                 <label className="form-label">Station service</label>
                 <input 
                   type="text" 
@@ -325,7 +325,7 @@ const Consommations = () => {
                 />
               </div>
             </div>
-            <div className="form-group" style={{ marginTop: '1.5rem' }}>
+            <div className="form-field full-width">
               <label className="form-label">Notes</label>
               <textarea 
                 name="notes"
@@ -333,10 +333,11 @@ const Consommations = () => {
                 onChange={handleInputChange}
                 className="form-textarea" 
                 rows="3"
+                placeholder="Notes optionnelles..."
               ></textarea>
             </div>
-            <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-              <button type="button" className="btn" onClick={resetForm}>
+            <div className="btn-group">
+              <button type="button" className="btn btn-secondary" onClick={resetForm}>
                 Annuler
               </button>
               <button type="submit" className="btn btn-primary">
@@ -347,49 +348,67 @@ const Consommations = () => {
         </div>
       )}
 
-      <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1rem', marginBottom: '2rem' }}>
-        <button 
-          className="btn btn-primary" 
-          onClick={() => setShowForm(!showForm)}
-          style={{ marginBottom: '1rem' }}
-        >
-          <Plus size={18} />
-          Ajouter une nouvelle consommation
-        </button>
+      <div className="page-header">
+        <h2 className="page-title">Gestion des Consommations</h2>
+        <div className="page-actions">
+          <button 
+            className="btn btn-primary" 
+            onClick={() => setShowForm(!showForm)}
+          >
+            <Plus size={18} />
+            Ajouter une nouvelle consommation
+          </button>
+        </div>
       </div>
 
-      <div className="table-container">
+      <div className="content-container">
         {error && (
-          <div className="error-banner">
+          <div className="message error">
             <AlertCircle size={20} />
             <span>{error}</span>
-            <button onClick={loadData} className="retry-button">
+            <button onClick={loadData} className="btn btn-secondary">
               Réessayer
             </button>
           </div>
         )}
 
-        <div style={{ padding: '1rem', borderBottom: '1px solid #e5e7eb', background: '#f9fafb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3>Gestion des consommations ({filteredConsumptions.length})</h3>
+        <div className="search-container">
+          <h3 style={{ color: 'var(--glass-text-primary)', margin: 0 }}>
+            Consommations ({filteredConsumptions.length})
+          </h3>
           <div style={{ position: 'relative' }}>
-            <Search size={20} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#6b7280' }} />
+            <Search size={20} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--glass-text-muted)' }} />
             <input 
               type="text" 
               placeholder="Rechercher..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="form-input" 
-              style={{ width: '200px', paddingLeft: '2.5rem' }} 
+              className="search-input" 
+              style={{ width: '250px', paddingLeft: '2.5rem' }} 
             />
           </div>
         </div>
 
         {filteredConsumptions.length === 0 ? (
-          <div className="empty-state">
-            <p>{searchTerm ? 'Aucune consommation trouvée' : 'Aucune consommation enregistrée'}</p>
+          <div className="chart-empty-state">
+            <div className="chart-empty-icon">
+              <Plus size={32} />
+            </div>
+            <div className="chart-empty-title">
+              {searchTerm ? 'Aucune consommation trouvée' : 'Aucune consommation enregistrée'}
+            </div>
+            <div className="chart-empty-subtitle">
+              {searchTerm ? 'Essayez avec d\'autres termes de recherche' : 'Commencez par ajouter votre première consommation de carburant'}
+            </div>
+            {!searchTerm && (
+              <button className="chart-empty-action" onClick={() => setShowForm(true)}>
+                <Plus size={16} />
+                Ajouter une consommation
+              </button>
+            )}
           </div>
         ) : (
-          <table className="table">
+          <table className="professional-table">
             <thead>
               <tr>
                 <th>Véhicule</th>
@@ -415,17 +434,17 @@ const Consommations = () => {
                   <td>{consumption.kilometrage} km</td>
                   <td>{consumption.station_service || 'N/A'}</td>
                   <td>
-                    <div className="actions">
+                    <div className="table-actions">
                       <button 
                         onClick={() => handleEdit(consumption)}
-                        className="btn-icon"
+                        className="action-btn edit"
                         title="Modifier"
                       >
                         <Edit2 size={16} />
                       </button>
                       <button 
                         onClick={() => handleDelete(consumption.id)}
-                        className="btn-icon btn-danger"
+                        className="action-btn delete"
                         title="Supprimer"
                       >
                         <Trash2 size={16} />

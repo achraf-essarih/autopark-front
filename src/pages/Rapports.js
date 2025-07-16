@@ -236,64 +236,55 @@ const Rapports = () => {
       
       <div style={{ display: 'flex', gap: '2rem' }}>
         <div style={{ width: '300px' }}>
-          <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', border: '1px solid #e5e7eb' }}>
-            {REPORT_TABS.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeReportTab === tab.id;
-              return (
-                <div 
-                  key={tab.id}
-                  onClick={() => setActiveReportTab(tab.id)}
-                  style={{ 
-                    marginBottom: '1rem', 
-                    padding: '0.75rem', 
-                    color: isActive ? '#3b82f6' : '#6b7280', 
-                    cursor: 'pointer',
-                    borderRadius: '0.5rem',
-                    background: isActive ? '#eff6ff' : 'transparent',
-                    borderLeft: isActive ? '3px solid #3b82f6' : '3px solid transparent',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: isActive ? '500' : 'normal' }}>
-                    <Icon size={18} />
-                    {tab.label}
+          <div className="glass-card">
+            <div className="tab-sidebar">
+              {REPORT_TABS.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeReportTab === tab.id;
+                return (
+                  <div 
+                    key={tab.id}
+                    onClick={() => setActiveReportTab(tab.id)}
+                    className={`tab-sidebar-item ${isActive ? 'active' : ''}`}
+                  >
+                    <div className="tab-sidebar-content">
+                      <Icon size={18} />
+                      {tab.label}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
         
         <div style={{ flex: 1 }}>
-          <div style={{ background: 'white', borderRadius: '0.75rem', padding: '2rem', border: '1px solid #e5e7eb', textAlign: 'center' }}>
-            <div style={{ marginBottom: '2rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '2rem', marginBottom: '2rem' }}>
-                <div style={{ textAlign: 'center' }}>
-                  <img 
-                    src="/epta-logo.jpg" 
-                    alt="EPTA Logo" 
-                    style={{ 
-                      width: '200px', 
-                      height: '100px', 
-                      objectFit: 'contain'
-                    }}
-                  />
-                </div>
+          <div className="content-container">
+            <div className="report-header">
+              <div className="report-logo">
+                <img 
+                  src="/epta-logo.jpg" 
+                  alt="EPTA Logo" 
+                  style={{ 
+                    width: '200px', 
+                    height: '100px', 
+                    objectFit: 'contain'
+                  }}
+                />
               </div>
             </div>
             
-            <div style={{ marginBottom: '2rem' }}>
-              <h2 style={{ marginBottom: '1rem' }}>
+            <div className="report-title">
+              <h2 style={{ color: 'var(--glass-text-primary)', marginBottom: '0.5rem' }}>
                 {REPORT_TABS.find(tab => tab.id === activeReportTab)?.label || 'Situation du Parc Auto'}
               </h2>
-              <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+              <p style={{ color: 'var(--glass-text-muted)', fontSize: '0.875rem' }}>
                 Total: {getDataCount()} élément{getDataCount() !== 1 ? 's' : ''}
               </p>
             </div>
             
-            <div className="table-container">
-              <table className="table">
+            <div className="professional-table">
+              <table>
                 <thead>
                   <tr>
                     {getTableHeaders().map((header, index) => (
@@ -307,9 +298,9 @@ const Rapports = () => {
               </table>
             </div>
             
-            <div style={{ marginTop: '2rem', textAlign: 'right', color: '#6b7280' }}>
-              <p>Date d'édition</p>
-              <p>{new Date().toLocaleDateString('fr-FR')}</p>
+            <div className="report-footer">
+              <p style={{ color: 'var(--glass-text-muted)', fontSize: '0.875rem' }}>Date d'édition</p>
+              <p style={{ color: 'var(--glass-text-primary)', fontWeight: '500' }}>{new Date().toLocaleDateString('fr-FR')}</p>
             </div>
           </div>
         </div>

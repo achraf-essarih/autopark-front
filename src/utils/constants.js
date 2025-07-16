@@ -1,4 +1,4 @@
- import { BarChart3, Car, Fuel, Wrench, FileText, ClipboardList, Shield, Filter, Eye, Lock, Settings2 } from 'lucide-react';
+ import { BarChart3, Car, Fuel, Wrench, FileText, ClipboardList, Users, Shield, Filter, Eye, Lock, Settings2 } from 'lucide-react';
 
 // Navigation menu items
 export const NAV_ITEMS = [
@@ -7,6 +7,7 @@ export const NAV_ITEMS = [
   { path: '/consommations', label: 'Consommations', icon: Fuel },
   { path: '/interventions', label: 'Interventions', icon: Wrench },
   { path: '/ordres-missions', label: 'Ordres des missions', icon: ClipboardList },
+  { path: '/liste-chauffeurs', label: 'Chauffeurs', icon: Users },
   { path: '/rapports', label: 'Rapports', icon: FileText },
   
 ];
