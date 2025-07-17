@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, User, Mail, AlertCircle } from 'lucide-react';
 import authService from '../services/authService';
+import '../styles/glassmorphism.css';
 
 const Login = () => {
   const [formData, setFormData] = useState({

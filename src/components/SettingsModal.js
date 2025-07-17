@@ -214,7 +214,7 @@ const SettingsModal = ({ isOpen, onClose, user }) => {
           </div>
         </div>
 
-        <div className="form-actions">
+        <div className="form-actions" style={{ backgroundColor: '#ffffff0d' }}>
           <button type="submit" className="btn btn-primary" disabled={loading}>
             <Plus size={16} />
             {loading ? 'En cours...' : (editingId ? 'Modifier le responsable' : 'Ajouter le responsable')}

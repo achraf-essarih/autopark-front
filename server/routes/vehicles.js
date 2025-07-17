@@ -10,7 +10,28 @@ router.use(verifyToken);
 router.get('/', async (req, res) => {
   try {
     const [vehicles] = await db.execute(`
-      SELECT * FROM vehicles 
+      SELECT 
+        id,
+        nom_vehicule as nom,
+        marque,
+        modele,
+        date_mise_circulation,
+        immatriculation,
+        mode_carburant as carburant,
+        boite_vitesses,
+        rapport,
+        nombre_ports as nombre_portes,
+        etat_mecanique,
+        puissance_fiscale,
+        plein_reservoir,
+        kilometrage,
+        consommation_l100 as consommation_100km,
+        description,
+        actif,
+        responsable_id,
+        created_at,
+        updated_at
+      FROM vehicles 
       ORDER BY created_at DESC
     `);
     
@@ -60,10 +81,31 @@ router.get('/stats', async (req, res) => {
 // GET /api/vehicles/:id - Récupérer un véhicule par ID
 router.get('/:id', async (req, res) => {
   try {
-    const [vehicles] = await db.execute(
-      'SELECT * FROM vehicles WHERE id = ?',
-      [req.params.id]
-    );
+    const [vehicles] = await db.execute(`
+      SELECT 
+        id,
+        nom_vehicule as nom,
+        marque,
+        modele,
+        date_mise_circulation,
+        immatriculation,
+        mode_carburant as carburant,
+        boite_vitesses,
+        rapport,
+        nombre_ports as nombre_portes,
+        etat_mecanique,
+        puissance_fiscale,
+        plein_reservoir,
+        kilometrage,
+        consommation_l100 as consommation_100km,
+        description,
+        actif,
+        responsable_id,
+        created_at,
+        updated_at
+      FROM vehicles 
+      WHERE id = ?
+    `, [req.params.id]);
     
     if (vehicles.length === 0) {
       return res.status(404).json({
@@ -166,10 +208,31 @@ router.post('/', async (req, res) => {
     ]);
 
     // Récupérer le véhicule créé
-    const [newVehicle] = await db.execute(
-      'SELECT * FROM vehicles WHERE id = ?',
-      [result.insertId]
-    );
+    const [newVehicle] = await db.execute(`
+      SELECT 
+        id,
+        nom_vehicule as nom,
+        marque,
+        modele,
+        date_mise_circulation,
+        immatriculation,
+        mode_carburant as carburant,
+        boite_vitesses,
+        rapport,
+        nombre_ports as nombre_portes,
+        etat_mecanique,
+        puissance_fiscale,
+        plein_reservoir,
+        kilometrage,
+        consommation_l100 as consommation_100km,
+        description,
+        actif,
+        responsable_id,
+        created_at,
+        updated_at
+      FROM vehicles 
+      WHERE id = ?
+    `, [result.insertId]);
 
     res.status(201).json({
       success: true,
@@ -247,10 +310,31 @@ router.put('/:id', async (req, res) => {
     ]);
 
     // Récupérer le véhicule mis à jour
-    const [updatedVehicle] = await db.execute(
-      'SELECT * FROM vehicles WHERE id = ?',
-      [req.params.id]
-    );
+    const [updatedVehicle] = await db.execute(`
+      SELECT 
+        id,
+        nom_vehicule as nom,
+        marque,
+        modele,
+        date_mise_circulation,
+        immatriculation,
+        mode_carburant as carburant,
+        boite_vitesses,
+        rapport,
+        nombre_ports as nombre_portes,
+        etat_mecanique,
+        puissance_fiscale,
+        plein_reservoir,
+        kilometrage,
+        consommation_l100 as consommation_100km,
+        description,
+        actif,
+        responsable_id,
+        created_at,
+        updated_at
+      FROM vehicles 
+      WHERE id = ?
+    `, [req.params.id]);
 
     res.json({
       success: true,
