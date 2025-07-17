@@ -128,6 +128,19 @@ CREATE TABLE missions (
     statut ENUM('Planifié', 'En cours', 'Terminé', 'Annulé') NOT NULL DEFAULT 'Planifié',
     notes TEXT,
     responsable_id INT NOT NULL,
+    
+    -- Nouvelles colonnes pour Google Maps
+    destination_latitude DECIMAL(10, 8) NULL,
+    destination_longitude DECIMAL(11, 8) NULL,
+    google_maps_link VARCHAR(500) NULL,
+    distance_km DECIMAL(8, 2) NULL,
+    temps_estime_minutes INT NULL,
+    temps_reel_minutes INT NULL,
+    itineraire_optimise TEXT NULL,
+    lieu_depart VARCHAR(255) NULL DEFAULT 'Siège social',
+    depart_latitude DECIMAL(10, 8) NULL,
+    depart_longitude DECIMAL(11, 8) NULL,
+    
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (vehicule_id) REFERENCES vehicles(id) ON DELETE CASCADE,
@@ -137,7 +150,8 @@ CREATE TABLE missions (
     INDEX idx_chauffeur (chauffeur_id),
     INDEX idx_date_depart (date_depart),
     INDEX idx_statut (statut),
-    INDEX idx_responsable (responsable_id)
+    INDEX idx_responsable (responsable_id),
+    INDEX idx_destination_coords (destination_latitude, destination_longitude)
 );
 
 -- Insérer l'administrateur par défaut

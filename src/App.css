@@ -277,7 +277,7 @@ body {
 .main-content {
   flex: 1;
   padding: 2rem;
-  max-width: 1200px;
+  max-width: 1300px;
   margin: 0 auto;
   width: 100%;
 }
@@ -974,25 +974,30 @@ body {
   }
 }
 
-/* Settings Modal Styles */
+/* Settings Modal Styles - Glassmorphism Theme */
 .settings-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(15, 23, 42, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
   padding: 2rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .settings-modal {
-  background: white;
-  border-radius: 0.75rem;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  background: var(--glass-card-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-card-border);
+  border-radius: 24px;
+  box-shadow: var(--glass-shadow);
   width: 100%;
   max-width: 1200px;
   max-height: 90vh;
@@ -1006,30 +1011,31 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 2rem;
-  border-bottom: 1px solid #e5e7eb;
-  background: #f9fafb;
+  border-bottom: 1px solid var(--glass-card-border);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .settings-modal-header h2 {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--glass-text-primary);
   margin: 0;
 }
 
 .settings-modal-close {
   padding: 0.5rem;
-  border: none;
-  background: none;
+  border: 1px solid var(--glass-card-border);
+  background: rgba(255, 255, 255, 0.1);
   cursor: pointer;
-  border-radius: 0.375rem;
-  color: #6b7280;
-  transition: all 0.2s;
+  border-radius: 8px;
+  color: var(--glass-text-secondary);
+  transition: all 0.3s ease;
 }
 
 .settings-modal-close:hover {
-  background: #f3f4f6;
-  color: #374151;
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--glass-text-primary);
+  transform: scale(1.05);
 }
 
 .settings-modal-content {
@@ -1040,8 +1046,8 @@ body {
 
 .settings-sidebar {
   width: 280px;
-  background: #f9fafb;
-  border-right: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.05);
+  border-right: 1px solid var(--glass-card-border);
   padding: 1.5rem;
   overflow-y: auto;
 }
@@ -1057,25 +1063,27 @@ body {
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  border: none;
-  background: none;
-  border-radius: 0.5rem;
-  color: #6b7280;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  color: var(--glass-text-secondary);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
   text-align: left;
   width: 100%;
 }
 
 .settings-nav-item:hover {
-  background: #f3f4f6;
-  color: #374151;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--glass-text-primary);
+  transform: translateX(4px);
 }
 
 .settings-nav-item.active {
-  background: #3b82f6;
+  background: var(--glass-btn-primary);
+  border-color: rgba(59, 130, 246, 0.3);
   color: white;
 }
 
@@ -1096,21 +1104,26 @@ body {
 .settings-content-header h3 {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--glass-text-primary);
   margin-bottom: 0.5rem;
 }
 
 .settings-content-header p {
-  color: #6b7280;
+  color: var(--glass-text-secondary);
   margin: 0;
 }
 
 .settings-form {
-  background: white;
+  background: rgba(255, 255, 255, 0.05);
   padding: 2rem;
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  border: 1px solid var(--glass-card-border);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.modal-content {
+  color: #ffffff;
 }
 
 /* Responsive Settings Modal */
@@ -1186,28 +1199,31 @@ body {
   100% { transform: rotate(360deg); }
 }
 
-/* Messages d'état */
+/* Messages d'état - Glassmorphism */
 .message {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  border-radius: 0.5rem;
+  border-radius: 12px;
   margin-bottom: 1rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid;
   font-size: 0.875rem;
   font-weight: 500;
 }
 
 .message.success {
-  background: #f0fdf4;
-  color: #166534;
-  border: 1px solid #bbf7d0;
+  background: rgba(34, 197, 94, 0.1);
+  color: #4ade80;
+  border-color: rgba(34, 197, 94, 0.3);
 }
 
 .message.error {
-  background: #fef2f2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
+  background: rgba(248, 113, 113, 0.1);
+  color: #fca5a5;
+  border-color: rgba(248, 113, 113, 0.3);
 }
 
 /* Bannières d'erreur */
@@ -1438,7 +1454,8 @@ body {
   .page-header,
   .nav-container,
   .btn,
-  .actions {
+  .actions,
+  .print-hide {
     display: none !important;
   }
   
@@ -1460,6 +1477,17 @@ body {
   .table td {
     padding: 0.5rem;
   }
+  
+  /* Hide sidebar and focus on content */
+  .content-container {
+    width: 100% !important;
+    max-width: none !important;
+  }
+}
+
+/* Print hide utility class */
+.print-hide {
+  /* This class will be hidden on print via the @media print rule above */
 }
 
 /* Responsivité améliorée */

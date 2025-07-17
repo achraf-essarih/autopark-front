@@ -80,7 +80,240 @@ const Rapports = () => {
   };
 
   const handlePrint = () => {
-    window.print();
+    // Get the current active tab info
+    const activeTab = REPORT_TABS.find(tab => tab.id === activeReportTab);
+    const printTitle = activeTab ? activeTab.label : 'Rapport';
+    
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    const reportContent = document.getElementById('printable-content');
+    
+    if (!reportContent) {
+      alert('Contenu non trouvé pour l\'impression');
+      return;
+    }
+    
+    // Get the current date
+    const currentDate = new Date().toLocaleDateString('fr-FR');
+    
+    // HTML content for print
+    const printHTML = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${printTitle} - EPTA</title>
+          <style>
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+              color: #333;
+              line-height: 1.4;
+              padding: 20px;
+            }
+            
+            .print-header {
+              text-align: center;
+              margin-bottom: 30px;
+              border-bottom: 2px solid #e5e7eb;
+              padding-bottom: 20px;
+            }
+            
+            .print-logo {
+              margin-bottom: 15px;
+            }
+            
+            .print-logo img {
+              width: 200px;
+              height: 100px;
+              object-fit: contain;
+            }
+            
+            .print-title {
+              font-size: 24px;
+              font-weight: bold;
+              color: #1f2937;
+              margin-bottom: 8px;
+            }
+            
+            .print-subtitle {
+              font-size: 14px;
+              color: #6b7280;
+              margin-bottom: 5px;
+            }
+            
+            .print-date {
+              font-size: 12px;
+              color: #9ca3af;
+            }
+            
+            .print-table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 20px;
+            }
+            
+            .print-table th {
+              background-color: #f9fafb;
+              border: 1px solid #d1d5db;
+              padding: 12px;
+              text-align: left;
+              font-weight: 600;
+              font-size: 12px;
+              color: #374151;
+            }
+            
+            .print-table td {
+              border: 1px solid #d1d5db;
+              padding: 10px;
+              font-size: 11px;
+              color: #4b5563;
+            }
+            
+            .print-table tr:nth-child(even) {
+              background-color: #f9fafb;
+            }
+            
+            .status-badge {
+              padding: 4px 8px;
+              border-radius: 4px;
+              color: white;
+              font-size: 10px;
+              font-weight: 500;
+            }
+            
+            .status-excellent { background-color: #10b981; }
+            .status-bon { background-color: #f59e0b; }
+            .status-mauvais { background-color: #ef4444; }
+            .status-termine { background-color: #10b981; }
+            .status-encours { background-color: #f59e0b; }
+            .status-planifie { background-color: #3b82f6; }
+            
+            .print-footer {
+              margin-top: 30px;
+              padding-top: 20px;
+              border-top: 1px solid #e5e7eb;
+              text-align: center;
+              font-size: 11px;
+              color: #6b7280;
+            }
+            
+            @media print {
+              body { padding: 0; }
+              .print-header { margin-bottom: 20px; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="print-header">
+            <div class="print-logo">
+              <img src="/epta-logo.jpg" alt="EPTA Logo" />
+            </div>
+            <div class="print-title">${printTitle}</div>
+            <div class="print-subtitle">Total: ${getDataCount()} élément${getDataCount() !== 1 ? 's' : ''}</div>
+            <div class="print-date">Date d'édition: ${currentDate}</div>
+          </div>
+          
+          <table class="print-table">
+            <thead>
+              <tr>
+                ${getTableHeaders().map(header => `<th>${header}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${getPrintTableRows()}
+            </tbody>
+          </table>
+          
+          <div class="print-footer">
+            <p>Document généré automatiquement par le système EPTA Auto Parc</p>
+            <p>© ${new Date().getFullYear()} EPTA - Tous droits réservés</p>
+          </div>
+        </body>
+      </html>
+    `;
+    
+    printWindow.document.write(printHTML);
+    printWindow.document.close();
+    printWindow.focus();
+    
+    // Wait for images to load then print
+    printWindow.onload = () => {
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+      }, 250);
+    };
+  };
+
+  const getPrintTableRows = () => {
+    let rows = '';
+    
+    switch (activeReportTab) {
+      case 'parc-auto':
+        if (data.vehicles.length === 0) {
+          rows = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #6b7280;">Aucun véhicule enregistré</td></tr>';
+        } else {
+          rows = data.vehicles.map((vehicle) => `
+            <tr>
+              <td>${vehicle.nom}</td>
+              <td>${vehicle.immatriculation}</td>
+              <td>${vehicle.boite_vitesses}</td>
+              <td>${vehicle.puissance_fiscale} CV</td>
+              <td>${vehicle.carburant}</td>
+              <td>
+                <span class="status-badge status-${vehicle.etat_mecanique.toLowerCase().replace('é', 'e')}">
+                  ${vehicle.etat_mecanique}
+                </span>
+              </td>
+            </tr>
+          `).join('');
+        }
+        break;
+
+             case 'consommation':
+         if (data.consumptions.length === 0) {
+           rows = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #6b7280;">Aucune consommation enregistrée</td></tr>';
+         } else {
+           rows = data.consumptions.map((consumption) => `
+             <tr>
+               <td>${getVehicleName(consumption.vehicule_id)}</td>
+               <td>${formatDate(consumption.date_consommation)}</td>
+               <td>${formatCurrency(consumption.montant || consumption.montant_total || 0)}</td>
+               <td>${consumption.kilometrage || 0} km</td>
+               <td>${consumption.litres_carburant || consumption.quantite || 0} L</td>
+             </tr>
+           `).join('');
+         }
+         break;
+
+      default:
+        const filteredInterventions = getFilteredInterventions();
+        if (filteredInterventions.length === 0) {
+          rows = `<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #6b7280;">Aucune intervention de type ${REPORT_TABS.find(tab => tab.id === activeReportTab)?.label} enregistrée</td></tr>`;
+        } else {
+          rows = filteredInterventions.map((intervention) => `
+            <tr>
+              <td>${getVehicleName(intervention.vehicule_id)}</td>
+              <td>${formatDate(intervention.date_intervention)}</td>
+              <td>${intervention.type_intervention}</td>
+              <td>${intervention.description || 'N/A'}</td>
+              <td>
+                <span class="status-badge status-${intervention.statut.toLowerCase().replace('é', 'e').replace(' ', '')}">
+                  ${intervention.statut}
+                </span>
+              </td>
+            </tr>
+          `).join('');
+        }
+        break;
+    }
+    
+    return rows;
   };
 
   const renderTableContent = () => {
@@ -158,9 +391,9 @@ const Rapports = () => {
           <tr key={consumption.id}>
             <td>{getVehicleName(consumption.vehicule_id)}</td>
             <td>{formatDate(consumption.date_consommation)}</td>
-            <td>{formatCurrency(consumption.montant_total)}</td>
-            <td>{consumption.kilometrage} km</td>
-            <td>{consumption.quantite} L</td>
+            <td>{formatCurrency(consumption.montant || consumption.montant_total || 0)}</td>
+            <td>{consumption.kilometrage || 0} km</td>
+            <td>{consumption.litres_carburant || consumption.quantite || 0} L</td>
           </tr>
         ));
 
@@ -235,7 +468,7 @@ const Rapports = () => {
       </div>
       
       <div style={{ display: 'flex', gap: '2rem' }}>
-        <div style={{ width: '300px' }}>
+        <div style={{ width: '300px' }} className="print-hide">
           <div className="glass-card">
             <div className="tab-sidebar">
               {REPORT_TABS.map((tab) => {
@@ -259,7 +492,7 @@ const Rapports = () => {
         </div>
         
         <div style={{ flex: 1 }}>
-          <div className="content-container">
+          <div className="content-container" id="printable-content">
             <div className="report-header">
               <div className="report-logo">
                 <img 

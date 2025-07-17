@@ -2,22 +2,131 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
 const { verifyToken } = require('../middleware/auth');
+const googleMapsService = require('../services/googleMapsService');
 
-// Middleware d'authentification pour toutes les routes
+// Appliquer le middleware d'authentification à toutes les routes
 router.use(verifyToken);
+
+// GET /api/missions/stats - Récupérer les statistiques des missions
+router.get('/stats', async (req, res) => {
+  try {
+    // Compter le nombre total de missions
+    const [totalResult] = await db.execute(`
+      SELECT COUNT(*) as totalMissions FROM missions
+    `);
+
+    // Compter par statut
+    const [statusResult] = await db.execute(`
+      SELECT statut, COUNT(*) as count 
+      FROM missions 
+      GROUP BY statut
+    `);
+
+    // Missions du mois en cours
+    const [monthResult] = await db.execute(`
+      SELECT COUNT(*) as currentMonthMissions 
+      FROM missions 
+      WHERE MONTH(date_depart) = MONTH(CURRENT_DATE()) 
+      AND YEAR(date_depart) = YEAR(CURRENT_DATE())
+    `);
+
+    res.json({
+      success: true,
+      stats: {
+        totalMissions: totalResult[0].totalMissions,
+        currentMonthMissions: monthResult[0].currentMonthMissions,
+        byStatus: statusResult.reduce((acc, curr) => {
+          acc[curr.statut] = curr.count;
+          return acc;
+        }, {})
+      }
+    });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des statistiques des missions:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la récupération des statistiques'
+    });
+  }
+});
+
+// GET /api/missions/analytics/geospatial - Analyser les données géospatiales
+router.get('/analytics/geospatial', async (req, res) => {
+  try {
+    // Statistiques géospatiales
+    const [stats] = await db.execute(`
+      SELECT 
+        COUNT(*) as total_missions,
+        COUNT(destination_latitude) as missions_with_coordinates,
+        AVG(distance_km) as avg_distance,
+        SUM(distance_km) as total_distance,
+        AVG(temps_estime_minutes) as avg_duration
+      FROM missions
+      WHERE date_depart >= DATE_SUB(NOW(), INTERVAL 1 YEAR)
+    `);
+
+    // Top destinations
+    const [topDestinations] = await db.execute(`
+      SELECT 
+        destination as destination,
+        COUNT(*) as frequency,
+        AVG(distance_km) as avg_distance,
+        destination_latitude,
+        destination_longitude
+      FROM missions
+      WHERE destination_latitude IS NOT NULL
+      GROUP BY destination, destination_latitude, destination_longitude
+      ORDER BY frequency DESC
+      LIMIT 10
+    `);
+
+    // Missions par zone géographique (approximative)
+    const [zoneStats] = await db.execute(`
+      SELECT 
+        CASE 
+          WHEN destination_latitude BETWEEN 33.5 AND 34.5 AND destination_longitude BETWEEN -7.5 AND -6.5 THEN 'Rabat-Casablanca'
+          WHEN destination_latitude BETWEEN 34.0 AND 35.0 AND destination_longitude BETWEEN -5.5 AND -4.5 THEN 'Fès-Meknès'
+          WHEN destination_latitude BETWEEN 31.5 AND 32.5 AND destination_longitude BETWEEN -8.5 AND -7.5 THEN 'Marrakech'
+          WHEN destination_latitude BETWEEN 35.0 AND 36.0 AND destination_longitude BETWEEN -6.0 AND -5.0 THEN 'Nord'
+          ELSE 'Autres'
+        END as zone,
+        COUNT(*) as missions_count,
+        AVG(distance_km) as avg_distance
+      FROM missions
+      WHERE destination_latitude IS NOT NULL AND destination_longitude IS NOT NULL
+      GROUP BY zone
+      ORDER BY missions_count DESC
+    `);
+
+    res.json({
+      success: true,
+      analytics: {
+        globalStats: stats[0],
+        topDestinations,
+        zoneStats
+      }
+    });
+  } catch (error) {
+    console.error('Erreur lors de l\'analyse géospatiale:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de l\'analyse géospatiale'
+    });
+  }
+});
 
 // GET /api/missions - Récupérer toutes les missions
 router.get('/', async (req, res) => {
   try {
     const [missions] = await db.execute(`
       SELECT m.*, 
-             m.objet_mission as objet, 
-             m.lieu_destination as destination, 
-             m.observations as notes,
              v.nom_vehicule as vehicule_nom, 
-             v.immatriculation 
-      FROM ordres_missions m
+             v.immatriculation,
+             c.nom as chauffeur_nom,
+             c.prenom as chauffeur_prenom
+      FROM missions m
       LEFT JOIN vehicles v ON m.vehicule_id = v.id
+      LEFT JOIN chauffeurs c ON m.chauffeur_id = c.id
       ORDER BY m.date_depart DESC
     `);
     
@@ -34,30 +143,37 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/missions/stats - Récupérer les statistiques des missions
-router.get('/stats', async (req, res) => {
+// GET /api/missions/:id - Récupérer une mission spécifique
+router.get('/:id', async (req, res) => {
   try {
-    const [totalCountResult] = await db.execute('SELECT COUNT(*) as total FROM ordres_missions');
-    const [planifieeResult] = await db.execute('SELECT COUNT(*) as count FROM ordres_missions WHERE statut = "Planifié"');
-    const [enCoursResult] = await db.execute('SELECT COUNT(*) as count FROM ordres_missions WHERE statut = "En cours"');
-    const [termineeResult] = await db.execute('SELECT COUNT(*) as count FROM ordres_missions WHERE statut = "Terminé"');
-    const [annuleeResult] = await db.execute('SELECT COUNT(*) as count FROM ordres_missions WHERE statut = "Annulé"');
-    
+    const [missions] = await db.execute(`
+      SELECT m.*, 
+             v.nom_vehicule as vehicule_nom, 
+             v.immatriculation,
+             c.nom as chauffeur_nom,
+             c.prenom as chauffeur_prenom
+      FROM missions m
+      LEFT JOIN vehicles v ON m.vehicule_id = v.id
+      LEFT JOIN chauffeurs c ON m.chauffeur_id = c.id
+      WHERE m.id = ?
+    `, [req.params.id]);
+
+    if (missions.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Mission non trouvée'
+      });
+    }
+
     res.json({
       success: true,
-      stats: {
-        total: totalCountResult[0].total || 0,
-        planifiee: planifieeResult[0].count || 0,
-        enCours: enCoursResult[0].count || 0,
-        terminee: termineeResult[0].count || 0,
-        annulee: annuleeResult[0].count || 0
-      }
+      mission: missions[0]
     });
   } catch (error) {
-    console.error('Erreur lors de la récupération des statistiques:', error);
+    console.error('Erreur lors de la récupération de la mission:', error);
     res.status(500).json({
       success: false,
-      message: 'Erreur lors de la récupération des statistiques'
+      message: 'Erreur lors de la récupération de la mission'
     });
   }
 });
@@ -67,7 +183,9 @@ router.post('/', async (req, res) => {
   try {
     const {
       vehicule_id,
+      chauffeur_id,
       objet,
+      object, // Alternative field name
       destination,
       date_depart,
       date_retour,
@@ -75,11 +193,37 @@ router.post('/', async (req, res) => {
       statut,
       kilometrage_depart,
       kilometrage_retour,
-      notes
+      notes,
+      // Nouvelles données Google Maps
+      destination_latitude,
+      destination_longitude,
+      google_maps_link,
+      distance_km,
+      temps_estime_minutes,
+      temps_reel_minutes,
+      itineraire_optimise,
+      lieu_depart,
+      depart_latitude,
+      depart_longitude
     } = req.body;
 
+    // Handle different field names for objet
+    const finalObjet = objet || object;
+
+    // Debug log pour comprendre les données reçues
+    console.log('Données reçues pour création mission:', {
+      vehicule_id,
+      chauffeur_id,
+      objet,
+      object,
+      finalObjet,
+      destination,
+      date_depart,
+      date_retour
+    });
+
     // Validation des champs requis
-    if (!vehicule_id || !objet || !destination || !date_depart) {
+    if (!vehicule_id || !finalObjet || !destination || !date_depart) {
       return res.status(400).json({
         success: false,
         message: 'Les champs véhicule, objet, destination et date de départ sont requis'
@@ -99,28 +243,99 @@ router.post('/', async (req, res) => {
       });
     }
 
+    // Vérifier si le chauffeur existe (optionnel)
+    if (chauffeur_id) {
+      const [chauffeur] = await db.execute(
+        'SELECT id FROM chauffeurs WHERE id = ?',
+        [chauffeur_id]
+      );
+
+      if (chauffeur.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'Chauffeur non trouvé'
+        });
+      }
+    }
+
+    // Calculer automatiquement la distance et le temps si les coordonnées sont fournies
+    let calculatedData = {
+      distance_km: distance_km,
+      temps_estime_minutes: temps_estime_minutes,
+      google_maps_link: google_maps_link
+    };
+
+    if (destination_latitude && destination_longitude) {
+      // Générer le lien Google Maps
+      if (!google_maps_link) {
+        calculatedData.google_maps_link = googleMapsService.generateGoogleMapsLink(
+          depart_latitude, depart_longitude, destination_latitude, destination_longitude
+        );
+      }
+
+      // Calculer la distance et le temps si pas déjà fournis
+      if ((!distance_km || !temps_estime_minutes) && depart_latitude && depart_longitude) {
+        const mapsData = await googleMapsService.calculateDistanceAndTime(
+          depart_latitude, depart_longitude, destination_latitude, destination_longitude
+        );
+
+        if (mapsData) {
+          if (!distance_km) calculatedData.distance_km = mapsData.distance_km;
+          if (!temps_estime_minutes) calculatedData.temps_estime_minutes = mapsData.temps_estime_minutes;
+        } else {
+          // Fallback: utiliser la formule haversine
+          if (!distance_km) {
+            calculatedData.distance_km = googleMapsService.calculateHaversineDistance(
+              depart_latitude, depart_longitude, destination_latitude, destination_longitude
+            );
+          }
+        }
+      }
+    }
+
     const [result] = await db.execute(`
-      INSERT INTO ordres_missions (
-        vehicule_id, personnel_transporte, lieu_destination, date_depart, date_retour,
-        objet_mission, statut, kilometrage_depart, kilometrage_retour,
-        observations, responsable_id, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+      INSERT INTO missions (
+        vehicule_id, chauffeur_id, personnel_transporte, destination, date_depart, date_retour,
+        objet, statut,
+        notes, responsable_id,
+        destination_latitude, destination_longitude, google_maps_link, 
+        distance_km, temps_estime_minutes, temps_reel_minutes, itineraire_optimise,
+        lieu_depart, depart_latitude, depart_longitude,
+        created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
     `, [
-      vehicule_id, personnel_transporte || '', destination, date_depart, date_retour,
-      objet, statut || 'Planifié', kilometrage_depart || null, kilometrage_retour || null,
-      notes || '', req.user.userId
+      vehicule_id, 
+      chauffeur_id || null, 
+      personnel_transporte || '', 
+      destination, 
+      date_depart, 
+      date_retour,
+      finalObjet, 
+      statut || 'Planifié',
+      notes || '', 
+      req.user.userId,
+      destination_latitude || null, 
+      destination_longitude || null, 
+      calculatedData.google_maps_link || null,
+      calculatedData.distance_km || null, 
+      calculatedData.temps_estime_minutes || null,
+      temps_reel_minutes || null,
+      itineraire_optimise || null,
+      lieu_depart || 'Siège social',
+      depart_latitude || null, 
+      depart_longitude || null
     ]);
 
     // Récupérer la mission créée avec les informations du véhicule
     const [newMission] = await db.execute(`
       SELECT m.*, 
-             m.objet_mission as objet, 
-             m.lieu_destination as destination, 
-             m.observations as notes,
              v.nom_vehicule as vehicule_nom, 
-             v.immatriculation 
-      FROM ordres_missions m
+             v.immatriculation,
+             c.nom as chauffeur_nom,
+             c.prenom as chauffeur_prenom
+      FROM missions m
       LEFT JOIN vehicles v ON m.vehicule_id = v.id
+      LEFT JOIN chauffeurs c ON m.chauffeur_id = c.id
       WHERE m.id = ?
     `, [result.insertId]);
 
@@ -143,7 +358,9 @@ router.put('/:id', async (req, res) => {
   try {
     const {
       vehicule_id,
+      chauffeur_id,
       objet,
+      object, // Alternative field name
       destination,
       date_depart,
       date_retour,
@@ -151,12 +368,26 @@ router.put('/:id', async (req, res) => {
       statut,
       kilometrage_depart,
       kilometrage_retour,
-      notes
+      notes,
+      // Nouvelles données Google Maps
+      destination_latitude,
+      destination_longitude,
+      google_maps_link,
+      distance_km,
+      temps_estime_minutes,
+      temps_reel_minutes,
+      itineraire_optimise,
+      lieu_depart,
+      depart_latitude,
+      depart_longitude
     } = req.body;
+
+    // Handle different field names for objet
+    const finalObjet = objet || object;
 
     // Vérifier si la mission existe
     const [existingMission] = await db.execute(
-      'SELECT id FROM ordres_missions WHERE id = ?',
+      'SELECT id FROM missions WHERE id = ?',
       [req.params.id]
     );
 
@@ -180,28 +411,86 @@ router.put('/:id', async (req, res) => {
       });
     }
 
+    // Vérifier si le chauffeur existe (optionnel)
+    if (chauffeur_id) {
+      const [chauffeur] = await db.execute(
+        'SELECT id FROM chauffeurs WHERE id = ?',
+        [chauffeur_id]
+      );
+
+      if (chauffeur.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'Chauffeur non trouvé'
+        });
+      }
+    }
+
+    // Calculer automatiquement la distance et le temps si les coordonnées sont fournies
+    let calculatedData = {
+      distance_km: distance_km,
+      temps_estime_minutes: temps_estime_minutes,
+      google_maps_link: google_maps_link
+    };
+
+    if (destination_latitude && destination_longitude) {
+      // Générer le lien Google Maps
+      if (!google_maps_link) {
+        calculatedData.google_maps_link = googleMapsService.generateGoogleMapsLink(
+          depart_latitude, depart_longitude, destination_latitude, destination_longitude
+        );
+      }
+
+      // Calculer la distance et le temps si pas déjà fournis
+      if ((!distance_km || !temps_estime_minutes) && depart_latitude && depart_longitude) {
+        const mapsData = await googleMapsService.calculateDistanceAndTime(
+          depart_latitude, depart_longitude, destination_latitude, destination_longitude
+        );
+
+        if (mapsData) {
+          if (!distance_km) calculatedData.distance_km = mapsData.distance_km;
+          if (!temps_estime_minutes) calculatedData.temps_estime_minutes = mapsData.temps_estime_minutes;
+        } else {
+          // Fallback: utiliser la formule haversine
+          if (!distance_km) {
+            calculatedData.distance_km = googleMapsService.calculateHaversineDistance(
+              depart_latitude, depart_longitude, destination_latitude, destination_longitude
+            );
+          }
+        }
+      }
+    }
+
     await db.execute(`
-      UPDATE ordres_missions SET
-        vehicule_id = ?, personnel_transporte = ?, lieu_destination = ?, date_depart = ?, date_retour = ?,
-        objet_mission = ?, statut = ?, kilometrage_depart = ?, kilometrage_retour = ?,
-        observations = ?, responsable_id = ?, updated_at = NOW()
+      UPDATE missions SET
+        vehicule_id = ?, chauffeur_id = ?, personnel_transporte = ?, destination = ?, 
+        date_depart = ?, date_retour = ?, objet = ?, statut = ?, 
+        notes = ?, responsable_id = ?,
+        destination_latitude = ?, destination_longitude = ?, google_maps_link = ?,
+        distance_km = ?, temps_estime_minutes = ?, temps_reel_minutes = ?, itineraire_optimise = ?,
+        lieu_depart = ?, depart_latitude = ?, depart_longitude = ?,
+        updated_at = NOW()
       WHERE id = ?
     `, [
-      vehicule_id, personnel_transporte || '', destination, date_depart, date_retour,
-      objet, statut, kilometrage_depart || null, kilometrage_retour || null,
-      notes || '', req.user.userId, req.params.id
+      vehicule_id, chauffeur_id || null, personnel_transporte || '', destination, 
+      date_depart, date_retour, finalObjet, statut, 
+      notes || '', req.user.userId,
+      destination_latitude || null, destination_longitude || null, calculatedData.google_maps_link || null,
+      calculatedData.distance_km || null, calculatedData.temps_estime_minutes || null, temps_reel_minutes || null, itineraire_optimise || null,
+      lieu_depart || 'Siège social', depart_latitude || null, depart_longitude || null,
+      req.params.id
     ]);
 
     // Récupérer la mission mise à jour
     const [updatedMission] = await db.execute(`
       SELECT m.*, 
-             m.objet_mission as objet, 
-             m.lieu_destination as destination, 
-             m.observations as notes,
              v.nom_vehicule as vehicule_nom, 
-             v.immatriculation 
-      FROM ordres_missions m
+             v.immatriculation,
+             c.nom as chauffeur_nom,
+             c.prenom as chauffeur_prenom
+      FROM missions m
       LEFT JOIN vehicles v ON m.vehicule_id = v.id
+      LEFT JOIN chauffeurs c ON m.chauffeur_id = c.id
       WHERE m.id = ?
     `, [req.params.id]);
 
@@ -224,7 +513,7 @@ router.delete('/:id', async (req, res) => {
   try {
     // Vérifier si la mission existe
     const [existingMission] = await db.execute(
-      'SELECT id FROM ordres_missions WHERE id = ?',
+      'SELECT id FROM missions WHERE id = ?',
       [req.params.id]
     );
 
@@ -235,7 +524,7 @@ router.delete('/:id', async (req, res) => {
       });
     }
 
-    await db.execute('DELETE FROM ordres_missions WHERE id = ?', [req.params.id]);
+    await db.execute('DELETE FROM missions WHERE id = ?', [req.params.id]);
 
     res.json({
       success: true,

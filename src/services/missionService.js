@@ -1,244 +1,123 @@
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+import api from './api';
 
-class MissionService {
-  // Obtenir le token d'authentification
-  getAuthHeaders() {
-    const token = localStorage.getItem('token');
-    return {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    };
-  }
-
-  // Obtenir toutes les missions
+const missionService = {
   async getMissions() {
     try {
-      const response = await fetch(`${API_BASE_URL}/missions`, {
-        method: 'GET',
-        headers: this.getAuthHeaders(),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur lors de la récupération des missions');
-      }
-
-      return {
-        success: true,
-        missions: data.missions || data
-      };
+      const response = await api.get('/missions');
+      return response;
     } catch (error) {
       console.error('Erreur lors de la récupération des missions:', error);
       return {
         success: false,
-        message: error.message,
-        missions: []
+        message: error.response?.data?.message || 'Erreur lors de la récupération des missions'
       };
     }
-  }
+  },
 
-  // Obtenir une mission par ID
-  async getMissionById(id) {
+  async getMission(id) {
     try {
-      const response = await fetch(`${API_BASE_URL}/missions/${id}`, {
-        method: 'GET',
-        headers: this.getAuthHeaders(),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur lors de la récupération de la mission');
-      }
-
-      return {
-        success: true,
-        mission: data.mission || data
-      };
+      const response = await api.get(`/missions/${id}`);
+      return response;
     } catch (error) {
       console.error('Erreur lors de la récupération de la mission:', error);
       return {
         success: false,
-        message: error.message,
-        mission: null
+        message: error.response?.data?.message || 'Erreur lors de la récupération de la mission'
       };
     }
-  }
+  },
 
-  // Créer une nouvelle mission
   async createMission(missionData) {
     try {
-      const response = await fetch(`${API_BASE_URL}/missions`, {
-        method: 'POST',
-        headers: this.getAuthHeaders(),
-        body: JSON.stringify(missionData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur lors de la création de la mission');
-      }
-
-      return {
-        success: true,
-        mission: data.mission || data,
-        message: 'Mission créée avec succès'
-      };
+      const response = await api.post('/missions', missionData);
+      return response;
     } catch (error) {
       console.error('Erreur lors de la création de la mission:', error);
       return {
         success: false,
-        message: error.message
+        message: error.response?.data?.message || 'Erreur lors de la création de la mission'
       };
     }
-  }
+  },
 
-  // Mettre à jour une mission
   async updateMission(id, missionData) {
     try {
-      const response = await fetch(`${API_BASE_URL}/missions/${id}`, {
-        method: 'PUT',
-        headers: this.getAuthHeaders(),
-        body: JSON.stringify(missionData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur lors de la mise à jour de la mission');
-      }
-
-      return {
-        success: true,
-        mission: data.mission || data,
-        message: 'Mission mise à jour avec succès'
-      };
+      const response = await api.put(`/missions/${id}`, missionData);
+      return response;
     } catch (error) {
       console.error('Erreur lors de la mise à jour de la mission:', error);
       return {
         success: false,
-        message: error.message
+        message: error.response?.data?.message || 'Erreur lors de la mise à jour de la mission'
       };
     }
-  }
+  },
 
-  // Supprimer une mission
   async deleteMission(id) {
     try {
-      const response = await fetch(`${API_BASE_URL}/missions/${id}`, {
-        method: 'DELETE',
-        headers: this.getAuthHeaders(),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur lors de la suppression de la mission');
-      }
-
-      return {
-        success: true,
-        message: 'Mission supprimée avec succès'
-      };
+      const response = await api.delete(`/missions/${id}`);
+      return response;
     } catch (error) {
       console.error('Erreur lors de la suppression de la mission:', error);
       return {
         success: false,
-        message: error.message
+        message: error.response?.data?.message || 'Erreur lors de la suppression de la mission'
       };
     }
-  }
+  },
 
-  // Obtenir les statistiques des missions
+  async getGeospatialAnalytics() {
+    try {
+      const response = await api.get('/missions/analytics/geospatial');
+      return response;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des analyses géospatiales:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Erreur lors de la récupération des analyses'
+      };
+    }
+  },
+
   async getMissionStats() {
     try {
-      const response = await fetch(`${API_BASE_URL}/missions/stats`, {
-        method: 'GET',
-        headers: this.getAuthHeaders(),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur lors de la récupération des statistiques');
-      }
-
-      return {
-        success: true,
-        stats: data.stats || data
-      };
+      const response = await api.get('/missions/stats');
+      return response;
     } catch (error) {
-      console.error('Erreur lors de la récupération des statistiques:', error);
+      console.error('Erreur lors de la récupération des statistiques des missions:', error);
       return {
         success: false,
-        message: error.message,
-        stats: {
-          totalMissions: 0,
-          completedMissions: 0,
-          pendingMissions: 0,
-          totalDistance: 0
-        }
+        message: error.response?.data?.message || 'Erreur lors de la récupération des statistiques'
       };
     }
+  },
+
+  // Service utilitaire pour calculer la distance entre deux points
+  calculateDistance(lat1, lng1, lat2, lng2) {
+    const R = 6371; // Rayon de la Terre en kilomètres
+    const dLat = this.toRadians(lat2 - lat1);
+    const dLng = this.toRadians(lng2 - lng1);
+    const a = 
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(this.toRadians(lat1)) * Math.cos(this.toRadians(lat2)) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  },
+
+  toRadians(degrees) {
+    return degrees * (Math.PI / 180);
+  },
+
+  // Service pour formater les liens Google Maps
+  formatGoogleMapsLink(fromLat, fromLng, toLat, toLng) {
+    return `https://www.google.com/maps/dir/${fromLat},${fromLng}/${toLat},${toLng}`;
+  },
+
+  // Service pour valider les coordonnées
+  validateCoordinates(lat, lng) {
+    return lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
   }
+};
 
-  // Obtenir les missions par véhicule
-  async getMissionsByVehicle(vehicleId) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/missions/vehicle/${vehicleId}`, {
-        method: 'GET',
-        headers: this.getAuthHeaders(),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur lors de la récupération des missions du véhicule');
-      }
-
-      return {
-        success: true,
-        missions: data.missions || data
-      };
-    } catch (error) {
-      console.error('Erreur lors de la récupération des missions du véhicule:', error);
-      return {
-        success: false,
-        message: error.message,
-        missions: []
-      };
-    }
-  }
-
-  // Obtenir les missions par responsable
-  async getMissionsByResponsable(responsableId) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/missions/responsable/${responsableId}`, {
-        method: 'GET',
-        headers: this.getAuthHeaders(),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur lors de la récupération des missions du responsable');
-      }
-
-      return {
-        success: true,
-        missions: data.missions || data
-      };
-    } catch (error) {
-      console.error('Erreur lors de la récupération des missions du responsable:', error);
-      return {
-        success: false,
-        message: error.message,
-        missions: []
-      };
-    }
-  }
-}
-
-export default new MissionService(); 
+export default missionService; 

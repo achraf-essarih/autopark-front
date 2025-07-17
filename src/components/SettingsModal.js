@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Users, Plus, List, User, Mail, Lock, Edit2, Trash2, AlertCircle } from 'lucide-react';
 import adminService from '../services/adminService';
+import '../styles/glassmorphism.css';
 
 const SettingsModal = ({ isOpen, onClose, user }) => {
   const [activeSection, setActiveSection] = useState('add-responsible');
