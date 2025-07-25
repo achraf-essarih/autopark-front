@@ -11,7 +11,8 @@ ADD COLUMN temps_reel_minutes INT NULL,
 ADD COLUMN itineraire_optimise TEXT NULL,
 ADD COLUMN lieu_depart VARCHAR(255) NULL DEFAULT 'Siège social',
 ADD COLUMN depart_latitude DECIMAL(10, 8) NULL,
-ADD COLUMN depart_longitude DECIMAL(11, 8) NULL;
+ADD COLUMN depart_longitude DECIMAL(11, 8) NULL,
+ADD COLUMN distance_added_to_vehicle BOOLEAN DEFAULT FALSE;
 
 -- Ajouter l'index pour les coordonnées de destination
 ALTER TABLE missions 

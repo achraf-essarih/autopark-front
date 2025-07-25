@@ -1,20 +1,23 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, User, Phone, Mail, MapPin, Calendar, CreditCard, CheckCircle, AlertCircle } from 'lucide-react';
+import { 
+  Users, UserPlus, Save, ArrowLeft, Phone, Mail, MapPin, 
+  CreditCard, Calendar, CheckCircle, AlertCircle
+} from 'lucide-react';
 import chauffeurService from '../services/chauffeurService';
 import '../styles/AjouterChauffeur.css';
+import '../styles/glassmorphism.css';
 
 const AjouterChauffeur = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
-  
   const [formData, setFormData] = useState({
     nom: '',
     prenom: '',
     date_naissance: '',
     numero_permis: '',
-    type_permis: 'B',
+    type_permis: '',
     date_expiration_permis: '',
     telephone: '',
     email: '',
@@ -22,9 +25,8 @@ const AjouterChauffeur = () => {
     actif: true
   });
 
-  const [errors, setErrors] = useState({});
-
   const typePermisOptions = [
+    { value: '', label: 'Sélectionner un type de permis' },
     { value: 'B', label: 'Permis B (Voiture)' },
     { value: 'C', label: 'Permis C (Poids lourd)' },
     { value: 'D', label: 'Permis D (Transport en commun)' },
@@ -39,81 +41,13 @@ const AjouterChauffeur = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-    
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-
-    // Validation des champs obligatoires
-    if (!formData.nom.trim()) {
-      newErrors.nom = 'Le nom est obligatoire';
-    }
-    
-    if (!formData.prenom.trim()) {
-      newErrors.prenom = 'Le prénom est obligatoire';
-    }
-    
-    if (!formData.numero_permis.trim()) {
-      newErrors.numero_permis = 'Le numéro de permis est obligatoire';
-    }
-    
-    if (!formData.date_expiration_permis) {
-      newErrors.date_expiration_permis = 'La date d\'expiration du permis est obligatoire';
-    } else {
-      // Vérifier que la date d'expiration n'est pas dans le passé
-      const expirationDate = new Date(formData.date_expiration_permis);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      if (expirationDate < today) {
-        newErrors.date_expiration_permis = 'La date d\'expiration ne peut pas être dans le passé';
-      }
-    }
-    
-    if (!formData.telephone.trim()) {
-      newErrors.telephone = 'Le numéro de téléphone est obligatoire';
-    } else if (!/^[0-9+\-\s()]+$/.test(formData.telephone)) {
-      newErrors.telephone = 'Le numéro de téléphone n\'est pas valide';
-    }
-    
-    // Validation de l'email si fourni
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'L\'adresse email n\'est pas valide';
-    }
-    
-    // Validation de la date de naissance si fournie
-    if (formData.date_naissance) {
-      const birthDate = new Date(formData.date_naissance);
-      const today = new Date();
-      const age = today.getFullYear() - birthDate.getFullYear();
-      
-      if (age < 18 || age > 80) {
-        newErrors.date_naissance = 'L\'âge doit être entre 18 et 80 ans';
-      }
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-    
     setLoading(true);
     setMessage(null);
-    
+
     try {
       const result = await chauffeurService.createChauffeur(formData);
       
@@ -149,24 +83,32 @@ const AjouterChauffeur = () => {
   };
 
   return (
-    <div className="main-content">
+    <div className="ajouter-chauffeur-page">
       <div className="page-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <button 
-            className="btn btn-secondary"
-            onClick={handleCancel}
-            disabled={loading}
-          >
-            <ArrowLeft size={20} />
-            Retour
-          </button>
-          <h1 className="page-title">Ajouter un chauffeur</h1>
+        <div className="header-content">
+          <div className="header-left">
+            <div className="page-icon">
+              <UserPlus size={32} />
+            </div>
+            <div>
+              <h1>Ajouter un Chauffeur</h1>
+              <p>Saisir les informations du nouveau chauffeur</p>
+            </div>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handleCancel}
+            >
+              <ArrowLeft size={18} />
+              Retour à la liste
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="content-container">
+      <div className="page-content">
         {message && (
-          <div className={`message ${message.type}`}>
+          <div className={`alert alert-${message.type}`}>
             {message.type === 'success' ? (
               <CheckCircle size={20} />
             ) : (
@@ -176,206 +118,160 @@ const AjouterChauffeur = () => {
           </div>
         )}
 
-        <div className="professional-form">
-          <form onSubmit={handleSubmit}>
-            {/* Informations personnelles */}
-            <div className="form-section">
-              <h3 className="form-title">
-                <User size={20} />
-                Informations personnelles
-              </h3>
-          
-              <div className="form-grid">
-                <div className="form-field">
-                  <label className="form-label">
-                    Nom <span className="required">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="nom"
-                    value={formData.nom}
-                    onChange={handleInputChange}
-                    className={`form-input ${errors.nom ? 'error' : ''}`}
-                    disabled={loading}
-                    placeholder="Nom de famille"
-                  />
-                  {errors.nom && <span className="error-message">{errors.nom}</span>}
+        <div className="form-container glass-card">
+          <form onSubmit={handleSubmit} className="chauffeur-form">
+            <div className="form-sections">
+              <div className="form-section">
+                <h3>
+                  <Users size={18} />
+                  Informations personnelles
+                </h3>
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label>Nom *</label>
+                    <input
+                      type="text"
+                      name="nom"
+                      value={formData.nom}
+                      onChange={handleInputChange}
+                      required
+                      className="form-input"
+                      placeholder="Nom de famille"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Prénom *</label>
+                    <input
+                      type="text"
+                      name="prenom"
+                      value={formData.prenom}
+                      onChange={handleInputChange}
+                      required
+                      className="form-input"
+                      placeholder="Prénom"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Date de naissance</label>
+                    <input
+                      type="date"
+                      name="date_naissance"
+                      value={formData.date_naissance}
+                      onChange={handleInputChange}
+                      className="form-input"
+                    />
+                  </div>
                 </div>
+              </div>
 
-                <div className="form-field">
-                  <label className="form-label">
-                    Prénom <span className="required">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="prenom"
-                    value={formData.prenom}
-                    onChange={handleInputChange}
-                    className={`form-input ${errors.prenom ? 'error' : ''}`}
-                    disabled={loading}
-                    placeholder="Prénom"
-                  />
-                  {errors.prenom && <span className="error-message">{errors.prenom}</span>}
+              <div className="form-section">
+                <h3>
+                  <CreditCard size={18} />
+                  Permis de conduire
+                </h3>
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label>Numéro de permis *</label>
+                    <input
+                      type="text"
+                      name="numero_permis"
+                      value={formData.numero_permis}
+                      onChange={handleInputChange}
+                      required
+                      className="form-input"
+                      placeholder="Numéro du permis de conduire"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Type de permis *</label>
+                    <select
+                      name="type_permis"
+                      value={formData.type_permis}
+                      onChange={handleInputChange}
+                      required
+                      className="form-select"
+                    >
+                      {typePermisOptions.map(option => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Date d'expiration *</label>
+                    <input
+                      type="date"
+                      name="date_expiration_permis"
+                      value={formData.date_expiration_permis}
+                      onChange={handleInputChange}
+                      required
+                      className="form-input"
+                    />
+                  </div>
                 </div>
+              </div>
 
-                <div className="form-field">
-                  <label className="form-label">
-                    <Calendar size={16} />
-                    Date de naissance
+              <div className="form-section">
+                <h3>
+                  <Phone size={18} />
+                  Informations de contact
+                </h3>
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label>Téléphone *</label>
+                    <input
+                      type="tel"
+                      name="telephone"
+                      value={formData.telephone}
+                      onChange={handleInputChange}
+                      required
+                      className="form-input"
+                      placeholder="Numéro de téléphone"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Email</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="form-input"
+                      placeholder="Adresse email"
+                    />
+                  </div>
+                  <div className="form-group full-width">
+                    <label>Adresse</label>
+                    <textarea
+                      name="adresse"
+                      value={formData.adresse}
+                      onChange={handleInputChange}
+                      className="form-textarea"
+                      rows="3"
+                      placeholder="Adresse complète"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-section">
+                <h3>Statut</h3>
+                <div className="form-group">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="actif"
+                      checked={formData.actif}
+                      onChange={handleInputChange}
+                    />
+                    <span>Chauffeur actif</span>
                   </label>
-                  <input
-                    type="date"
-                    name="date_naissance"
-                    value={formData.date_naissance}
-                    onChange={handleInputChange}
-                    className={`form-input ${errors.date_naissance ? 'error' : ''}`}
-                    disabled={loading}
-                  />
-                  {errors.date_naissance && <span className="error-message">{errors.date_naissance}</span>}
                 </div>
               </div>
             </div>
 
-            {/* Informations du permis */}
-            <div className="form-section">
-              <h3 className="form-title">
-                <CreditCard size={20} />
-                Informations du permis de conduire
-              </h3>
-              
-              <div className="form-grid">
-                <div className="form-field">
-                  <label className="form-label">
-                    Numéro de permis <span className="required">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="numero_permis"
-                    value={formData.numero_permis}
-                    onChange={handleInputChange}
-                    className={`form-input ${errors.numero_permis ? 'error' : ''}`}
-                    disabled={loading}
-                    placeholder="Numéro du permis de conduire"
-                  />
-                  {errors.numero_permis && <span className="error-message">{errors.numero_permis}</span>}
-                </div>
-
-                <div className="form-field">
-                  <label className="form-label">
-                    Type de permis <span className="required">*</span>
-                  </label>
-                  <select
-                    name="type_permis"
-                    value={formData.type_permis}
-                    onChange={handleInputChange}
-                    className="form-select"
-                    disabled={loading}
-                  >
-                    {typePermisOptions.map(option => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="form-field">
-                  <label className="form-label">
-                    Date d'expiration <span className="required">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    name="date_expiration_permis"
-                    value={formData.date_expiration_permis}
-                    onChange={handleInputChange}
-                    className={`form-input ${errors.date_expiration_permis ? 'error' : ''}`}
-                    disabled={loading}
-                  />
-                  {errors.date_expiration_permis && <span className="error-message">{errors.date_expiration_permis}</span>}
-                </div>
-              </div>
-            </div>
-
-            {/* Informations de contact */}
-            <div className="form-section">
-              <h3 className="form-title">
-                <Phone size={20} />
-                Informations de contact
-              </h3>
-              
-              <div className="form-grid">
-                <div className="form-field">
-                  <label className="form-label">
-                    <Phone size={16} />
-                    Téléphone <span className="required">*</span>
-                  </label>
-                  <input
-                    type="tel"
-                    name="telephone"
-                    value={formData.telephone}
-                    onChange={handleInputChange}
-                    className={`form-input ${errors.telephone ? 'error' : ''}`}
-                    disabled={loading}
-                    placeholder="+212 6XX XXX XXX"
-                  />
-                  {errors.telephone && <span className="error-message">{errors.telephone}</span>}
-                </div>
-
-                <div className="form-field">
-                  <label className="form-label">
-                    <Mail size={16} />
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className={`form-input ${errors.email ? 'error' : ''}`}
-                    disabled={loading}
-                    placeholder="email@example.com"
-                  />
-                  {errors.email && <span className="error-message">{errors.email}</span>}
-                </div>
-
-                <div className="form-field full-width">
-                  <label className="form-label">
-                    <MapPin size={16} />
-                    Adresse
-                  </label>
-                  <textarea
-                    name="adresse"
-                    value={formData.adresse}
-                    onChange={handleInputChange}
-                    className="form-textarea"
-                    disabled={loading}
-                    placeholder="Adresse complète"
-                    rows="3"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Statut */}
-            <div className="form-section">
-              <h3 className="form-title">Statut</h3>
-              
-              <div className="form-field">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    name="actif"
-                    checked={formData.actif}
-                    onChange={handleInputChange}
-                    disabled={loading}
-                  />
-                  <span className="checkbox-text">Chauffeur actif</span>
-                </label>
-              </div>
-            </div>
-
-            {/* Boutons d'action */}
-            <div className="btn-group">
+            <div className="form-actions">
               <button
                 type="button"
                 className="btn btn-secondary"
@@ -384,13 +280,22 @@ const AjouterChauffeur = () => {
               >
                 Annuler
               </button>
-              
               <button
                 type="submit"
                 className="btn btn-primary"
                 disabled={loading}
               >
-                {loading ? 'Ajout en cours...' : 'Ajouter le chauffeur'}
+                {loading ? (
+                  <>
+                    <div className="loading-spinner"></div>
+                    Ajout en cours...
+                  </>
+                ) : (
+                  <>
+                    <Save size={18} />
+                    Ajouter le chauffeur
+                  </>
+                )}
               </button>
             </div>
           </form>

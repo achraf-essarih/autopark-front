@@ -140,6 +140,7 @@ CREATE TABLE missions (
     lieu_depart VARCHAR(255) NULL DEFAULT 'Siège social',
     depart_latitude DECIMAL(10, 8) NULL,
     depart_longitude DECIMAL(11, 8) NULL,
+    distance_added_to_vehicle BOOLEAN DEFAULT FALSE,
     
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

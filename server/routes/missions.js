@@ -293,6 +293,10 @@ router.post('/', async (req, res) => {
       }
     }
 
+    // Déterminer si cette mission sera créée comme terminée avec une distance
+    const finalStatut = statut || 'Planifié';
+    const isCompletedWithDistance = finalStatut === 'Terminé' && calculatedData.distance_km;
+
     const [result] = await db.execute(`
       INSERT INTO missions (
         vehicule_id, chauffeur_id, personnel_transporte, destination, date_depart, date_retour,
@@ -300,9 +304,9 @@ router.post('/', async (req, res) => {
         notes, responsable_id,
         destination_latitude, destination_longitude, google_maps_link, 
         distance_km, temps_estime_minutes, temps_reel_minutes, itineraire_optimise,
-        lieu_depart, depart_latitude, depart_longitude,
+        lieu_depart, depart_latitude, depart_longitude, distance_added_to_vehicle,
         created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
     `, [
       vehicule_id, 
       chauffeur_id || null, 
@@ -311,7 +315,7 @@ router.post('/', async (req, res) => {
       date_depart, 
       date_retour,
       finalObjet, 
-      statut || 'Planifié',
+      finalStatut,
       notes || '', 
       req.user.userId,
       destination_latitude || null, 
@@ -323,8 +327,20 @@ router.post('/', async (req, res) => {
       itineraire_optimise || null,
       lieu_depart || 'Siège social',
       depart_latitude || null, 
-      depart_longitude || null
+      depart_longitude || null,
+      isCompletedWithDistance
     ]);
+
+    // Si la mission est créée comme terminée avec une distance, ajouter cette distance au kilométrage du véhicule
+    if (isCompletedWithDistance) {
+      await db.execute(`
+        UPDATE vehicles 
+        SET kilometrage = kilometrage + ?, updated_at = NOW() 
+        WHERE id = ?
+      `, [calculatedData.distance_km, vehicule_id]);
+
+      console.log(`Distance de ${calculatedData.distance_km} km ajoutée au véhicule ${vehicule_id} suite à la création de la mission terminée`);
+    }
 
     // Récupérer la mission créée avec les informations du véhicule
     const [newMission] = await db.execute(`
@@ -461,6 +477,16 @@ router.put('/:id', async (req, res) => {
       }
     }
 
+    // Récupérer la mission actuelle pour vérifier le changement de statut
+    const [currentMission] = await db.execute(
+      'SELECT statut, distance_km, distance_added_to_vehicle, vehicule_id FROM missions WHERE id = ?',
+      [req.params.id]
+    );
+
+    const isStatusChangingToCompleted = currentMission[0].statut !== 'Terminé' && statut === 'Terminé';
+    const hasDistance = calculatedData.distance_km || currentMission[0].distance_km;
+    const notAlreadyAdded = !currentMission[0].distance_added_to_vehicle;
+
     await db.execute(`
       UPDATE missions SET
         vehicule_id = ?, chauffeur_id = ?, personnel_transporte = ?, destination = ?, 
@@ -469,6 +495,7 @@ router.put('/:id', async (req, res) => {
         destination_latitude = ?, destination_longitude = ?, google_maps_link = ?,
         distance_km = ?, temps_estime_minutes = ?, temps_reel_minutes = ?, itineraire_optimise = ?,
         lieu_depart = ?, depart_latitude = ?, depart_longitude = ?,
+        distance_added_to_vehicle = ?,
         updated_at = NOW()
       WHERE id = ?
     `, [
@@ -478,8 +505,22 @@ router.put('/:id', async (req, res) => {
       destination_latitude || null, destination_longitude || null, calculatedData.google_maps_link || null,
       calculatedData.distance_km || null, calculatedData.temps_estime_minutes || null, temps_reel_minutes || null, itineraire_optimise || null,
       lieu_depart || 'Siège social', depart_latitude || null, depart_longitude || null,
+      (isStatusChangingToCompleted && hasDistance && notAlreadyAdded) ? true : currentMission[0].distance_added_to_vehicle,
       req.params.id
     ]);
+
+    // Si la mission est marquée comme terminée et a une distance, ajouter cette distance au kilométrage du véhicule
+    if (isStatusChangingToCompleted && hasDistance && notAlreadyAdded) {
+      const distanceToAdd = calculatedData.distance_km || currentMission[0].distance_km;
+      
+      await db.execute(`
+        UPDATE vehicles 
+        SET kilometrage = kilometrage + ?, updated_at = NOW() 
+        WHERE id = ?
+      `, [distanceToAdd, vehicule_id]);
+
+      console.log(`Distance de ${distanceToAdd} km ajoutée au véhicule ${vehicule_id} suite à la mission ${req.params.id}`);
+    }
 
     // Récupérer la mission mise à jour
     const [updatedMission] = await db.execute(`

@@ -10,7 +10,23 @@ router.use(verifyToken);
 router.get('/', async (req, res) => {
   try {
     const [consumptions] = await db.execute(`
-      SELECT c.*, v.nom_vehicule as vehicule_nom, v.immatriculation 
+      SELECT 
+        c.id,
+        c.vehicule_id,
+        c.date_consommation,
+        c.montant as montant_total,
+        c.kilometrage,
+        c.litres_carburant as quantite,
+        c.prix_litre as prix_unitaire,
+        c.consommation_calculee,
+        c.station_service,
+        c.note as notes,
+        c.responsable_id,
+        c.created_at,
+        c.updated_at,
+        v.nom_vehicule as vehicule_nom, 
+        v.immatriculation,
+        v.mode_carburant as type_carburant
       FROM consommations c
       LEFT JOIN vehicles v ON c.vehicule_id = v.id
       ORDER BY c.date_consommation DESC
@@ -158,7 +174,23 @@ router.post('/', async (req, res) => {
 
     // Récupérer la consommation créée avec les informations du véhicule
     const [newConsumption] = await db.execute(`
-      SELECT c.*, v.nom_vehicule as vehicule_nom, v.immatriculation 
+      SELECT 
+        c.id,
+        c.vehicule_id,
+        c.date_consommation,
+        c.montant as montant_total,
+        c.kilometrage,
+        c.litres_carburant as quantite,
+        c.prix_litre as prix_unitaire,
+        c.consommation_calculee,
+        c.station_service,
+        c.note as notes,
+        c.responsable_id,
+        c.created_at,
+        c.updated_at,
+        v.nom_vehicule as vehicule_nom, 
+        v.immatriculation,
+        v.mode_carburant as type_carburant
       FROM consommations c
       LEFT JOIN vehicles v ON c.vehicule_id = v.id
       WHERE c.id = ?
@@ -239,7 +271,23 @@ router.put('/:id', async (req, res) => {
 
     // Récupérer la consommation mise à jour
     const [updatedConsumption] = await db.execute(`
-      SELECT c.*, v.nom_vehicule as vehicule_nom, v.immatriculation 
+      SELECT 
+        c.id,
+        c.vehicule_id,
+        c.date_consommation,
+        c.montant as montant_total,
+        c.kilometrage,
+        c.litres_carburant as quantite,
+        c.prix_litre as prix_unitaire,
+        c.consommation_calculee,
+        c.station_service,
+        c.note as notes,
+        c.responsable_id,
+        c.created_at,
+        c.updated_at,
+        v.nom_vehicule as vehicule_nom, 
+        v.immatriculation,
+        v.mode_carburant as type_carburant
       FROM consommations c
       LEFT JOIN vehicles v ON c.vehicule_id = v.id
       WHERE c.id = ?

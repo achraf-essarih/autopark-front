@@ -283,9 +283,9 @@ const Rapports = () => {
              <tr>
                <td>${getVehicleName(consumption.vehicule_id)}</td>
                <td>${formatDate(consumption.date_consommation)}</td>
-               <td>${formatCurrency(consumption.montant || consumption.montant_total || 0)}</td>
+               <td>${formatCurrency(consumption.montant_total || 0)}</td>
                <td>${consumption.kilometrage || 0} km</td>
-               <td>${consumption.litres_carburant || consumption.quantite || 0} L</td>
+               <td>${consumption.quantite || 0} L</td>
              </tr>
            `).join('');
          }
@@ -391,9 +391,9 @@ const Rapports = () => {
           <tr key={consumption.id}>
             <td>{getVehicleName(consumption.vehicule_id)}</td>
             <td>{formatDate(consumption.date_consommation)}</td>
-            <td>{formatCurrency(consumption.montant || consumption.montant_total || 0)}</td>
+            <td>{formatCurrency(consumption.montant_total || 0)}</td>
             <td>{consumption.kilometrage || 0} km</td>
-            <td>{consumption.litres_carburant || consumption.quantite || 0} L</td>
+            <td>{consumption.quantite || 0} L</td>
           </tr>
         ));
 
