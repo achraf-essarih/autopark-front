@@ -17,14 +17,18 @@ import {
   Shield,
   UserCog,
   Menu,
-  X
+  X,
+  Sun,
+  Moon
 } from 'lucide-react';
 import authService from '../services/authService';
 import SettingsModal from './SettingsModal';
+import { useTheme } from '../contexts/ThemeContext';
 
 const ModernNavigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { isDarkMode, toggleTheme } = useTheme();
   const [user, setUser] = useState(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -179,6 +183,20 @@ const ModernNavigation = () => {
             </div>
           ))}
         </nav>
+
+        {/* Theme toggle button */}
+        <div className="theme-toggle-container">
+          <button
+            onClick={toggleTheme}
+            className="theme-toggle-btn"
+            title={isDarkMode ? "Passer au mode clair" : "Passer au mode sombre"}
+          >
+            {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+            {!sidebarCollapsed && (
+              <span>{isDarkMode ? "Mode Clair" : "Mode Sombre"}</span>
+            )}
+          </button>
+        </div>
 
         {/* Profil utilisateur en bas de la sidebar */}
         <div className="sidebar-footer">

@@ -10,27 +10,29 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f7fa;
-  color: #333;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: var(--bg-primary);
 }
 
 /* Header Styles */
 .header {
-  background: var(--glass-card-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border-bottom: 1px solid var(--glass-card-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-color);
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: var(--glass-shadow-small);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .logo {
@@ -46,7 +48,7 @@ body {
 .logo-text {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #1e40af;
+  color: var(--text-primary);
 }
 
 .header-actions {
@@ -61,13 +63,13 @@ body {
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #6b7280;
+  color: var(--text-secondary);
   transition: all 0.2s;
 }
 
 .header-icon:hover {
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--nav-item-hover);
+  color: var(--text-primary);
 }
 
 .user-avatar {
@@ -100,7 +102,7 @@ body {
 }
 
 .user-menu-trigger:hover {
-  background: #f3f4f6;
+  background: var(--nav-item-hover);
 }
 
 .user-info {
@@ -113,13 +115,13 @@ body {
 .user-name {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #374151;
+  color: var(--text-primary);
   line-height: 1.2;
 }
 
 .user-role {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--text-tertiary);
   text-transform: capitalize;
 }
 
@@ -137,13 +139,15 @@ body {
   top: 100%;
   right: 0;
   margin-top: 0.5rem;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--glass-bg);
+  border: 1px solid var(--border-color);
   border-radius: 0.75rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   min-width: 280px;
   z-index: 50;
   overflow: hidden;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .user-dropdown-header {
@@ -988,7 +992,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(15, 23, 42, 0.8);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -999,12 +1003,12 @@ body {
 }
 
 .settings-modal {
-  background: var(--glass-card-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-card-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-color);
   border-radius: 24px;
-  box-shadow: var(--glass-shadow);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   width: 100%;
   max-width: 1200px;
   max-height: 90vh;
@@ -1018,30 +1022,30 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 2rem;
-  border-bottom: 1px solid var(--glass-card-border);
-  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--theme-toggle-bg);
 }
 
 .settings-modal-header h2 {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--glass-text-primary);
+  color: var(--text-primary);
   margin: 0;
 }
 
 .settings-modal-close {
   padding: 0.5rem;
-  border: 1px solid var(--glass-card-border);
-  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-color);
+  background: var(--theme-toggle-bg);
   cursor: pointer;
   border-radius: 8px;
-  color: var(--glass-text-secondary);
+  color: var(--text-secondary);
   transition: all 0.3s ease;
 }
 
 .settings-modal-close:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: var(--glass-text-primary);
+  background: var(--theme-toggle-hover);
+  color: var(--text-primary);
   transform: scale(1.05);
 }
 
@@ -1053,8 +1057,8 @@ body {
 
 .settings-sidebar {
   width: 280px;
-  background: rgba(255, 255, 255, 0.05);
-  border-right: 1px solid var(--glass-card-border);
+  background: var(--theme-toggle-bg);
+  border-right: 1px solid var(--border-color);
   padding: 1.5rem;
   overflow-y: auto;
 }
@@ -1071,9 +1075,9 @@ body {
   gap: 0.75rem;
   padding: 0.75rem 1rem;
   border: 1px solid transparent;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--theme-toggle-bg);
   border-radius: 12px;
-  color: var(--glass-text-secondary);
+  color: var(--text-secondary);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -1083,13 +1087,13 @@ body {
 }
 
 .settings-nav-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--glass-text-primary);
+  background: var(--nav-item-hover);
+  color: var(--text-primary);
   transform: translateX(4px);
 }
 
 .settings-nav-item.active {
-  background: var(--glass-btn-primary);
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
   border-color: rgba(59, 130, 246, 0.3);
   color: white;
 }
@@ -1098,6 +1102,7 @@ body {
   flex: 1;
   padding: 2rem;
   overflow-y: auto;
+  background: var(--glass-bg);
 }
 
 .settings-content {
@@ -1111,20 +1116,20 @@ body {
 .settings-content-header h3 {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--glass-text-primary);
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
 .settings-content-header p {
-  color: var(--glass-text-secondary);
+  color: var(--text-secondary);
   margin: 0;
 }
 
 .settings-form {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--theme-toggle-bg);
   padding: 2rem;
   border-radius: 16px;
-  border: 1px solid var(--glass-card-border);
+  border: 1px solid var(--border-color);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
@@ -1144,7 +1149,7 @@ body {
 }
 
 .settings-modal .form-label {
-  color: var(--glass-text-secondary);
+  color: var(--text-secondary);
   font-size: 0.875rem;
   font-weight: 500;
   display: flex;
@@ -1153,22 +1158,22 @@ body {
 }
 
 .settings-modal .form-input {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid var(--glass-card-border) !important;
+  background: var(--theme-toggle-bg) !important;
+  border: 1px solid var(--border-color) !important;
   border-radius: 12px !important;
-  color: var(--glass-text-primary) !important;
+  color: var(--text-primary) !important;
   padding: 0.875rem 1rem;
   transition: all 0.3s ease;
 }
 
 .settings-modal .form-input:focus {
-  border-color: var(--corporate-blue) !important;
-  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: #3b82f6 !important;
+  background: var(--nav-item-hover) !important;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
 }
 
 .settings-modal .form-input::placeholder {
-  color: var(--glass-text-muted) !important;
+  color: var(--text-tertiary) !important;
 }
 
 .settings-modal .form-actions {
@@ -1177,11 +1182,112 @@ body {
   gap: 1rem;
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid var(--glass-card-border);
+  border-top: 1px solid var(--border-color);
 }
 
 .modal-content {
-  color: #ffffff;
+  color: var(--text-primary);
+}
+
+/* Settings Modal Table Styles */
+.settings-modal .table-container {
+  background: var(--theme-toggle-bg);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.settings-modal .table {
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.settings-modal .table th {
+  background: var(--nav-item-hover);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem;
+  font-weight: 600;
+}
+
+.settings-modal .table td {
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem;
+}
+
+.settings-modal .table tbody tr:hover {
+  background: var(--nav-item-hover);
+}
+
+/* Settings Modal Status Badge */
+.settings-modal .status-badge {
+  background: var(--theme-toggle-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Settings Modal Button Overrides */
+.settings-modal .btn-secondary {
+  background: var(--theme-toggle-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.settings-modal .btn-secondary:hover {
+  background: var(--theme-toggle-hover);
+  color: var(--text-primary);
+}
+
+/* Settings Modal Action Buttons */
+.settings-modal .action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.settings-modal .btn-icon {
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--theme-toggle-bg);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.settings-modal .btn-icon:hover {
+  background: var(--theme-toggle-hover);
+  color: var(--text-primary);
+  transform: scale(1.05);
+}
+
+/* Error and Success Messages in Modal */
+.settings-modal .error-message {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.settings-modal .success-message {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #4ade80;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 /* Responsive Settings Modal */
@@ -1603,22 +1709,29 @@ body {
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
+  background-color: var(--bg-primary);
 }
 
 .page-header {
   text-align: center;
   margin-bottom: 2rem;
+  background: var(--glass-bg);
+  padding: 2rem;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .page-title {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--glass-text-primary);
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
 .page-subtitle {
-  color: var(--glass-text-secondary);
+  color: var(--text-secondary);
   font-size: 1.1rem;
   margin: 0;
 }
@@ -1626,7 +1739,8 @@ body {
 .content-container {
   max-width: 1600px;
   margin: 0 auto;
-  width: 100%;
+  width: 105%;
+  background-color: var(--bg-primary);
 }
 
 /* Enhanced Intervention Form Styles - Dark Theme */
@@ -1818,29 +1932,30 @@ body {
 }
 
 .btn-primary {
-  background: var(--glass-btn-primary) !important;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
   color: white !important;
-  box-shadow: var(--glass-shadow-small);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
 }
 
 .btn-primary:hover {
-  background: rgba(59, 130, 246, 0.4) !important;
+  background: linear-gradient(135deg, #2563eb, #1e3a8a);
   transform: translateY(-2px);
-  box-shadow: var(--glass-shadow);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
 }
 
 .btn-secondary {
-  background: #e2e8f0;
-  color: #475569;
-  border: 1px solid #cbd5e1;
+  background: var(--theme-toggle-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .btn-secondary:hover {
-  background: #cbd5e1;
-  color: #334155;
+  background: var(--theme-toggle-hover);
+  color: var(--text-primary);
+  transform: translateY(-1px);
 }
 
 /* Status badge improvements */
@@ -1870,4 +1985,422 @@ body {
 .status-badge.cancelled {
   background: #fee2e2;
   color: #991b1b;
+}
+
+/* ============================================
+   THEME SYSTEM
+   ============================================ */
+
+/* Default (Dark) theme variables */
+:root {
+  --bg-primary: #1e293b;
+  --bg-secondary: #334155;
+  --bg-tertiary: #475569;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e0;
+  --text-tertiary: #94a3b8;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --sidebar-bg: #1e293b;
+  --sidebar-text: #f8fafc;
+  --nav-item-hover: rgba(255, 255, 255, 0.1);
+  --nav-item-active: rgba(59, 130, 246, 0.2);
+  --glass-bg: rgba(30, 41, 59, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --theme-toggle-bg: rgba(255, 255, 255, 0.1);
+  --theme-toggle-hover: rgba(255, 255, 255, 0.2);
+  --theme-toggle-text: #f8fafc;
+}
+
+/* Light theme variables */
+.light-theme {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #e2e8f0;
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-tertiary: #64748b;
+  --border-color: rgba(0, 0, 0, 0.1);
+  --sidebar-bg: #ffffff;
+  --sidebar-text: #1e293b;
+  --nav-item-hover: rgba(0, 0, 0, 0.05);
+  --nav-item-active: rgba(59, 130, 246, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.9);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --theme-toggle-bg: rgba(0, 0, 0, 0.05);
+  --theme-toggle-hover: rgba(0, 0, 0, 0.1);
+  --theme-toggle-text: #1e293b;
+}
+
+/* Dark theme variables (explicit) */
+.dark-theme {
+  --bg-primary: #1e293b;
+  --bg-secondary: #334155;
+  --bg-tertiary: #475569;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e0;
+  --text-tertiary: #94a3b8;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --sidebar-bg: #1e293b;
+  --sidebar-text: #f8fafc;
+  --nav-item-hover: rgba(255, 255, 255, 0.1);
+  --nav-item-active: rgba(59, 130, 246, 0.2);
+  --glass-bg: rgba(30, 41, 59, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --theme-toggle-bg: rgba(255, 255, 255, 0.1);
+  --theme-toggle-hover: rgba(255, 255, 255, 0.2);
+  --theme-toggle-text: #f8fafc;
+}
+
+/* Apply theme colors to body */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Update sidebar styles to use theme variables */
+.sidebar {
+  background: var(--sidebar-bg) !important;
+  border-right: 1px solid var(--border-color) !important;
+  color: var(--sidebar-text) !important;
+}
+
+.sidebar-header {
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.sidebar-logo span {
+  color: var(--text-primary) !important;
+}
+
+.nav-section-title {
+  color: var(--text-tertiary) !important;
+}
+
+.nav-item {
+  color: var(--text-secondary) !important;
+}
+
+.nav-item:hover {
+  background: var(--nav-item-hover) !important;
+  color: var(--text-primary) !important;
+}
+
+.nav-item.active {
+  background: var(--nav-item-active) !important;
+  color: #3b82f6 !important;
+}
+
+/* Hide the "Ajouter Chauffeur" navigation item */
+.nav-item[href="/ajouter-chauffeur"] {
+  display: none !important;
+}
+
+.nav-item-button {
+  color: var(--text-secondary) !important;
+}
+
+.nav-item-button:hover {
+  background: var(--nav-item-hover) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Theme toggle button styles */
+.theme-toggle-container {
+  padding: 1rem;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 0;
+}
+
+.theme-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--theme-toggle-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  color: var(--theme-toggle-text);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.theme-toggle-btn:hover {
+  background: var(--theme-toggle-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.theme-toggle-btn:active {
+  transform: translateY(0);
+}
+
+/* Collapsed sidebar theme toggle */
+.sidebar.collapsed .theme-toggle-btn {
+  justify-content: center;
+  padding: 0.75rem;
+}
+
+.sidebar.collapsed .theme-toggle-btn span {
+  display: none;
+}
+
+/* Update user profile styles */
+.user-profile-header {
+  color: var(--text-primary) !important;
+}
+
+.user-name {
+  color: var(--text-primary) !important;
+}
+
+.user-role {
+  color: var(--text-tertiary) !important;
+}
+
+/* Update glass card styles to use theme variables */
+.glass-card {
+  background: var(--glass-bg) !important;
+  border: 1px solid var(--glass-border) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+}
+
+/* Update main content area */
+.main-content {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Global styles for all cards and containers */
+.glass-card,
+.card,
+.container,
+.widget,
+.form-container {
+  background: var(--glass-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Table styles */
+.table {
+  background: transparent !important;
+}
+
+.table th {
+  background: var(--theme-toggle-bg) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.table td {
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.table tbody tr:hover {
+  background: var(--nav-item-hover) !important;
+}
+
+/* Theme-specific table text colors */
+.dark-theme .table,
+.dark-theme .table th,
+.dark-theme .table td,
+.dark-theme .table tbody tr td {
+  color: var(--text-primary) !important;
+}
+
+.light-theme .table,
+.light-theme .table th,
+.light-theme .table td,
+.light-theme .table tbody tr td {
+  color: #1e293b !important;
+}
+
+/* Ensure table content is visible in both themes */
+.table th {
+  color: var(--text-primary) !important;
+}
+
+.table td {
+  color: var(--text-primary) !important;
+}
+
+/* Override any inline styles or specific components */
+.table .badge,
+.table .status-badge,
+.table .btn,
+.table span,
+.table div {
+  color: inherit !important;
+}
+
+/* Form elements */
+input,
+select,
+textarea {
+  background: var(--theme-toggle-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #3b82f6 !important;
+  background: var(--nav-item-hover) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-tertiary) !important;
+}
+
+/* Labels */
+label {
+  color: var(--text-secondary) !important;
+}
+
+/* Status badges - theme aware */
+.status-badge {
+  background: var(--theme-toggle-bg) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* Theme-specific badge colors */
+.dark-theme .status-badge {
+  background: var(--theme-toggle-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+.light-theme .status-badge {
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: #1e293b !important;
+}
+
+/* Colored badges that should maintain their colors but adapt text */
+.status-badge.pending {
+  background: #fef3c7 !important;
+  color: #92400e !important;
+}
+
+.status-badge.progress {
+  background: #dbeafe !important;
+  color: #1e40af !important;
+}
+
+.status-badge.completed {
+  background: #d1fae5 !important;
+  color: #065f46 !important;
+}
+
+.status-badge.cancelled {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+}
+
+/* Headers in all pages */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary) !important;
+}
+
+/* Text elements */
+p, span, div {
+  color: inherit;
+}
+
+/* Update report styles */
+.report-header {
+  border-bottom: 2px solid var(--border-color) !important;
+  background: var(--glass-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+.report-title {
+  color: var(--text-primary) !important;
+}
+
+.report-subtitle {
+  color: var(--text-secondary) !important;
+}
+
+.report-footer {
+  border-top: 1px solid var(--border-color) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Comprehensive text color management */
+.dark-theme {
+  color: var(--text-primary);
+}
+
+.light-theme {
+  color: #1e293b;
+}
+
+/* All text elements in dark theme */
+.dark-theme p,
+.dark-theme span,
+.dark-theme div,
+.dark-theme td,
+.dark-theme th,
+.dark-theme li,
+.dark-theme a {
+  color: var(--text-primary) !important;
+}
+
+/* All text elements in light theme */
+.light-theme p,
+.light-theme span,
+.light-theme div,
+.light-theme td,
+.light-theme th,
+.light-theme li,
+.light-theme a {
+  color: #1e293b !important;
+}
+
+/* Specific overrides for table data */
+.dark-theme .table tbody tr td,
+.dark-theme .table tbody tr td span,
+.dark-theme .table tbody tr td div {
+  color: #f8fafc !important;
+}
+
+.light-theme .table tbody tr td,
+.light-theme .table tbody tr td span,
+.light-theme .table tbody tr td div {
+  color: #1e293b !important;
+}
+
+/* Input and form elements text color fix */
+.dark-theme input,
+.dark-theme select,
+.dark-theme textarea {
+  color: #f8fafc !important;
+}
+
+.light-theme input,
+.light-theme select,
+.light-theme textarea {
+  color: #1e293b !important;
+}
+
+/* Card content text colors */
+.dark-theme .card,
+.dark-theme .glass-card,
+.dark-theme .data-card {
+  color: #f8fafc !important;
+}
+
+.light-theme .card,
+.light-theme .glass-card,
+.light-theme .data-card {
+  color: #1e293b !important;
 }
